@@ -1,0 +1,10 @@
+.idea
+.vscode
+.claude
+
+.env
+.env.local
+*.pem
+**/.DS_Store
+
+vendor

@@ -1,0 +1,29 @@
+package main
+
+import (
+	"fmt"
+
+	"github.com/caarlos0/env/v11"
+	"github.com/joho/godotenv"
+)
+
+const EnvFile = ".env"
+
+type Env struct {
+	PrivateKeyPath string `env:"CLIENT_PRIVATE_KEY_PATH,required"`
+	KeyAlgo        string `env:"CLIENT_KEY_ALGO" envDefault:"ed25519"`
+	ServerURL      string `env:"SERVER_URL" envDefault:"http://localhost:4021"`
+	ChainID        string `env:"CAIP2_CHAIN_ID,required"`
+}
+
+func (e *Env) Parse() error {
+	if err := godotenv.Load(EnvFile); err != nil {
+		// rely only on env vars
+		fmt.Println("Could not load .env file")
+	}
+
+	if err := env.Parse(e); err != nil {
+		return err
+	}
+	return nil
+}

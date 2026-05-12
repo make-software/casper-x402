@@ -1,0 +1,129 @@
+name: casper-nctl-x402
+services:
+  nctlexplorer:
+    image: casper-nctl-explorer:latest
+    container_name: webexplorer-x402
+    tty: true
+    networks: [dev]
+    environment:
+      Casper.Network.SDK.Web__NodeAddress: 'http://nctl:11101'
+      Casper.Network.SDK.Web__SSEHost: 'nctl'
+    ports:
+      - 8080:80
+  nctl-init: # only needed to set permissions for the nctl assets volume, which is required for the deployer to work
+    image: busybox
+    user: "0"
+    command: ["chmod", "777", "/home/casper/casper-nctl/assets"]
+    volumes:
+      - casper-nctl-assets:/home/casper/casper-nctl/assets
+    networks: [dev]
+  nctl:
+    image: makesoftware/casper-nctl:latest
+    networks: [dev]
+    cpus: 1
+    volumes:
+      - casper-nctl-assets:/home/casper/casper-nctl/assets
+    ports:
+      - "11101:11101"
+      - "14101:14101"
+      - "18101:18101"
+      - "25101:25101"
+    environment:
+      PREDEFINED_ACCOUNTS: 'true'
+    healthcheck:
+      # Keys must exist AND node must be in Validate state (actively producing blocks)
+      test: ["CMD-SHELL", "curl -sf http://localhost:14101/status | grep -q 'Validate'"]
+      interval: 5s
+      retries: 72
+      start_period: 30s
+  # ── One-shot deployer ─────────────────────────────────────────────────────
+  deployer:
+    image: rust:bookworm
+    user: "0"
+    networks: [dev]
+    working_dir: /app
+    command: ./deployer
+#    command: /bin/bash -c "tail -f /dev/null"
+    depends_on:
+      nctl:
+        condition: service_healthy
+    volumes:
+      - casper-nctl-assets:/casper-nctl/assets
+      - ./deployer:/app
+    environment:
+      RUST_LOG: debug
+      RUST_BACKTRACE: full
+      ODRA_LOG_LEVEL: debug
+      ODRA_CASPER_LIVENET_NODE_ADDRESS: http://nctl:11101/rpc
+      ODRA_CASPER_LIVENET_CHAIN_NAME: casper-net-1
+      ODRA_CASPER_LIVENET_EVENTS_URL: http://nctl:18101/events
+      ODRA_CASPER_LIVENET_SECRET_KEY_PATH: /casper-nctl/assets/net-1/faucet/secret_key.pem
+      ODRA_CASPER_LIVENET_KEY_1: /casper-nctl/assets/net-1/users/user-1/secret_key.pem
+      X402_CONTRACT_ADDRESS_FILE: /casper-nctl/assets/net-1/contract_package_hash
+      EXTERNAL_ACCOUNT_HASH_1: account-hash-313d2a19e961f0f8ab3ca595daa0511aa2b82acd8df6d1642dc80d3c7ca49977
+      EXTERNAL_ACCOUNT_HASH_2: account-hash-9fa1fc0808d3a5b9ea9f3af4ca7c8c3655568fdf378d8afdf8a7e56e58abbfd4
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /casper-nctl/assets/net-1/contract_package_hash"]
+      interval: 5s
+      retries: 6
+      start_period: 10s
+  # ── x402 Facilitator ──────────────────────────────────────────────────────
+  facilitator:
+    build:
+      context: ../..
+      dockerfile: infra/docker/build-facilitator.Dockerfile
+    container_name: facilitator-x402
+    networks: [dev]
+    depends_on:
+      nctl:
+        condition: service_healthy
+    ports:
+      - "4022:4022"
+    environment:
+      LOG_LEVEL: debug
+      GIN_MODE: release
+      CASPER_NETWORKS: 'casper:casper-net-1'
+      SECRET_KEY_ALGO_CASPER_CASPER_NET_1: 'ed25519'
+      RPCURL_CASPER_CASPER_NET_1: 'http://nctl:11101/rpc'
+    entrypoint: ["/bin/sh", "-c"]
+    # For local dev: read key from mounted NCTL assets and set env var at runtime.
+    # In production: set FACILITATOR_PRIVATE_KEY_PEM directly via secrets management.
+    command:
+      - |
+        export SECRET_KEY_PEM_CASPER_CASPER_NET_1=$$(cat /casper-nctl/assets/net-1/users/user-1/secret_key.pem)
+        exec /app/facilitator
+    volumes:
+      - casper-nctl-assets:/casper-nctl/assets:ro
+  # ── x402 Resource Server ────────────────────────────────────────────────
+  server:
+    build:
+      context: ../..
+      dockerfile: infra/docker/build-server.Dockerfile
+    container_name: server-x402
+    networks: [dev]
+    depends_on:
+      deployer:
+        condition: service_healthy
+    ports:
+      - "4021:4021"
+    environment:
+      LOG_LEVEL: debug
+      GIN_MODE: release
+      CAIP2_CHAIN_ID: 'casper:casper-net-1'
+      FACILITATOR_URL: 'http://facilitator:4022'
+      PAYEE_ADDRESS: '000000000000000000000000000000000000000000000000000000000000000000'
+    entrypoint: ["/bin/sh", "-c"]
+    # PAYEE_ADDRESS and ASSET_PACKAGE are read from NCTL assets at runtime.
+    command:
+      - |
+        export ASSET_PACKAGE=$$(cat /casper-nctl/assets/net-1/contract_package_hash)
+        exec /app/server
+    volumes:
+      - casper-nctl-assets:/casper-nctl/assets:ro
+networks:
+  dev:
+    driver: bridge
+
+volumes:
+  casper-nctl-assets:
+

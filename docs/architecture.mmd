@@ -1,0 +1,29 @@
+sequenceDiagram
+    autonumber
+    actor Client as x402 Client
+    participant Server as Resource Server<br/>(:4021)
+    participant Facilitator as x402 Facilitator<br/>(:4022)
+    participant Casper as Casper Node (RPC)
+
+    Client->>Server: GET /weather
+    Server-->>Client: 402 Payment Required<br/>+ PaymentRequirements
+
+    Note over Client: Build ExactCasperPayload<br/>sign EIP-712 TransferAuthorization
+
+    Client->>Server: GET /weather<br/>+ PAYMENT-SIGNATURE
+
+    Server->>Facilitator: POST /verify<br/>{payload, requirements}
+    Note over Facilitator: Validate signature, timing,<br/>amount, payTo, asset
+    Facilitator-->>Server: { isValid: true, payer }
+
+    Note over Server: Execute business logic
+
+    Server->>Facilitator: POST /settle<br/>{payload, requirements}
+    Note over Facilitator: Build TransactionV1<br/>transfer_with_authorization<br/>sign with facilitator key
+    Facilitator->>Casper: put_transaction
+    Casper-->>Facilitator: deploy hash
+    Facilitator->>Casper: poll GetTransactionByTransactionHash
+    Casper-->>Facilitator: execution result
+    Facilitator-->>Server: { success: true, transaction, payer }
+
+    Server-->>Client: 200 OK<br/>+ PAYMENT-RESPONSE (settlement)
