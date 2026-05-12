@@ -161,4 +161,4 @@ go test ./x402/mechanisms/casper/exact/facilitator/...
 
 ## License
 
-This project is licensed under the [Apache License 2.0](LICENSE.md).
+This project is licensed under the [Apache License 2.0](./LICENSE).
