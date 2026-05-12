@@ -161,6 +161,4 @@ go test ./x402/mechanisms/casper/exact/facilitator/...
 
 ## License
 
-See upstream `github.com/x402-foundation/x402/go` for the protocol reference
-implementation license. Project-specific files are distributed under the terms
-chosen by MAKE.
+This project is licensed under the [Apache License 2.0](LICENSE.md).
