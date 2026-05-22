@@ -16,7 +16,7 @@ import (
 )
 
 var transferWithAuthorizationTypes = eip712.TypeDefinitions{
-	"TransferAuthorization": {
+	"TransferWithAuthorization": {
 		{Name: "from", Type: "address"},
 		{Name: "to", Type: "address"},
 		{Name: "value", Type: "uint256"},
@@ -95,7 +95,7 @@ func (c *ExactCasperScheme) CreatePaymentPayload(
 	digest, err := eip712.HashTypedData(
 		domain,
 		transferWithAuthorizationTypes,
-		"TransferAuthorization",
+		"TransferWithAuthorization",
 		message,
 		&eip712.TypedDataOptions{DomainTypes: eip712.CasperDomainTypes},
 	)

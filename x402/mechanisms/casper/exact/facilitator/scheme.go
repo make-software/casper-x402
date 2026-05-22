@@ -28,7 +28,7 @@ import (
 const defaultPaymentMotes uint64 = 2_500_000_000
 
 var transferWithAuthorizationTypes = eip712.TypeDefinitions{
-	"TransferAuthorization": {
+	"TransferWithAuthorization": {
 		{Name: "from", Type: "address"},
 		{Name: "to", Type: "address"},
 		{Name: "value", Type: "uint256"},
@@ -192,7 +192,7 @@ func (f *ExactCasperScheme) Verify(
 		"nonce":       nonceBytes,
 	}
 
-	digest, err := eip712.HashTypedData(domain, transferWithAuthorizationTypes, "TransferAuthorization", message, &eip712.TypedDataOptions{DomainTypes: eip712.CasperDomainTypes})
+	digest, err := eip712.HashTypedData(domain, transferWithAuthorizationTypes, "TransferWithAuthorization", message, &eip712.TypedDataOptions{DomainTypes: eip712.CasperDomainTypes})
 	if err != nil {
 		return nil, x402.NewVerifyError(ErrFailedToHash, "", err.Error())
 	}
@@ -359,18 +359,18 @@ func (f *ExactCasperScheme) Settle(
 		return nil, x402.NewSettleError(ErrSignDeployFailed, verifyResp.Payer, network, "", err.Error())
 	}
 
-	transactionHash, err := f.signer.PutTransaction(ctx, requirements.Network, *transaction)
+	_, err = f.signer.PutTransaction(ctx, requirements.Network, *transaction)
 	if err != nil {
-		return nil, x402.NewSettleError(ErrPutDeployFailed, verifyResp.Payer, network, "", err.Error())
+		return nil, x402.NewSettleError(ErrPutDeployFailed, verifyResp.Payer, network, transaction.Hash.String(), err.Error())
 	}
 
-	if err := f.signer.WaitForTransaction(ctx, requirements.Network, transactionHash); err != nil {
-		return nil, x402.NewSettleError(ErrWaitDeployFailed, verifyResp.Payer, network, transactionHash, err.Error())
+	if err := f.signer.WaitForTransaction(ctx, requirements.Network, transaction.Hash.String()); err != nil {
+		return nil, x402.NewSettleError(ErrWaitDeployFailed, verifyResp.Payer, network, transaction.Hash.String(), err.Error())
 	}
 
 	return &x402.SettleResponse{
 		Success:     true,
-		Transaction: transactionHash,
+		Transaction: transaction.Hash.String(),
 		Network:     network,
 		Payer:       verifyResp.Payer,
 	}, nil

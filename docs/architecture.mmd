@@ -8,7 +8,7 @@ sequenceDiagram
     Client->>Server: GET /weather
     Server-->>Client: 402 Payment Required<br/>+ PaymentRequirements
 
-    Note over Client: Build ExactCasperPayload<br/>sign EIP-712 TransferAuthorization
+    Note over Client: Build ExactCasperPayload<br/>sign EIP-712 TransferWithAuthorization
 
     Client->>Server: GET /weather<br/>+ PAYMENT-SIGNATURE
 

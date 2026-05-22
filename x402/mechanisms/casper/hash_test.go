@@ -29,7 +29,7 @@ func TestTransferWithAuthorizationDigest_Vector(t *testing.T) {
 	copy(nonceBytes[:], nonceRaw)
 
 	types := eip712.TypeDefinitions{
-		"TransferAuthorization": {
+		"TransferWithAuthorization": {
 			{Name: "from", Type: "address"},
 			{Name: "to", Type: "address"},
 			{Name: "value", Type: "uint256"},
@@ -51,7 +51,7 @@ func TestTransferWithAuthorizationDigest_Vector(t *testing.T) {
 	digest, err := eip712.HashTypedData(
 		domain,
 		types,
-		"TransferAuthorization",
+		"TransferWithAuthorization",
 		message,
 		&eip712.TypedDataOptions{DomainTypes: eip712.CasperDomainTypes},
 	)
