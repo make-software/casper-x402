@@ -72,8 +72,8 @@ Copy that value into `ASSET_PACKAGE` in your `.env`.
 Clone the repository and download Go modules:
 
 ```bash
-git clone https://github.com/your-org/casper_x402_facilitator.git
-cd casper_x402_facilitator
+git clone https://github.com/your-org/casper-x402.git
+cd casper-x402
 go mod download
 ```
 

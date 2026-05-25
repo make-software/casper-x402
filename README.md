@@ -128,7 +128,7 @@ On success, the client prints the weather response and the facilitator logs a
 ## Project layout
 
 ```
-casper_x402_facilitator/
+casper-x402-facilitator/
 ├── apps/
 │   └── facilitator/       # x402 facilitator HTTP server (:4022)
 ├── examples/
