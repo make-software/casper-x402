@@ -49,7 +49,7 @@ demo resource server (`:4021`) are healthy and ready. You can then run the
 demo client against them from the host:
 
 ```bash
-go run examples/client/main.go
+go run ./examples/client
 ```
 
 If you just want the network and want to run the facilitator/server locally
@@ -180,19 +180,19 @@ Open three terminals from the project root.
 ### Terminal 1 — facilitator
 
 ```bash
-go run apps/facilitator/main.go
+go run ./apps/facilitator
 ```
 
 ### Terminal 2 — resource server
 
 ```bash
-go run examples/server/main.go
+go run ./examples/server
 ```
 
 ### Terminal 3 — client
 
 ```bash
-go run examples/client/main.go
+go run ./examples/client
 ```
 
 ## 5. Common operations

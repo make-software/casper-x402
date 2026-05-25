@@ -120,6 +120,10 @@ func main() {
 			logger.Ctx(ctx.Ctx).Info("Before verify hook - validating payment requirements",
 				"scheme", ctx.Requirements.GetScheme(),
 				"network", ctx.Requirements.GetNetwork())
+			// log paymentbytes and payloadbytes
+			logger.Ctx(ctx.Ctx).Info("Payment details",
+				"payment_bytes", ctx.RequirementsBytes,
+				"payload_bytes", ctx.PayloadBytes)
 			// Example: Abort verification
 			// return &x402.BeforeHookResult{Abort: true, Reason: "Custom validation failed"}, nil
 			return nil, nil
@@ -127,6 +131,9 @@ func main() {
 		// Hook 2: After Verify - Called after successful payment verification
 		OnAfterVerify(func(ctx x402.VerifyResultContext) error {
 			logger.Ctx(ctx.Ctx).Info("After verify hook", "IsValid", ctx.Result.IsValid)
+			if !ctx.Result.IsValid {
+				logger.Ctx(ctx.Ctx).Warn("Payment verification failed", "reason", ctx.Result.InvalidReason)
+			}
 			return nil
 		}).
 		// Hook 3: Verify Failure - Called when payment verification fails
