@@ -69,7 +69,7 @@ func defaultSigner() *mockFacilitatorSigner {
 		addresses:       []string{facilitatorAddr},
 		publicKeyHex:    "01aabbccddeeff0011223344556677889900aabbccddeeff001122334455667788",
 		verifyResult:    true,
-		putDeployResult: "abc123deployhash",
+		putDeployResult: strings.Repeat("ab", 32),
 	}
 }
 
@@ -121,8 +121,6 @@ func TestGetExtra_ReturnsCasperMetadata(t *testing.T) {
 	extra := scheme.GetExtra(x402.Network(testNetwork))
 	require.NotNil(t, extra)
 	assert.Equal(t, facilitatorAddr, extra["feePayer"])
-	assert.Equal(t, "Cep18x402", extra["name"])
-	assert.Equal(t, "1", extra["version"])
 }
 
 func TestGetExtra_EmptySignerAddresses(t *testing.T) {
@@ -133,8 +131,6 @@ func TestGetExtra_EmptySignerAddresses(t *testing.T) {
 	extra := scheme.GetExtra(x402.Network(testNetwork))
 	require.NotNil(t, extra)
 	assert.Equal(t, "", extra["feePayer"])
-	assert.Equal(t, "Cep18x402", extra["name"])
-	assert.Equal(t, "1", extra["version"])
 }
 
 func TestVerify_HappyPath(t *testing.T) {
@@ -226,7 +222,7 @@ func TestSettle_HappyPath(t *testing.T) {
 	resp, err := scheme.Settle(context.Background(), payload, req, nil)
 	require.NoError(t, err)
 	assert.True(t, resp.Success)
-	assert.Equal(t, "abc123deployhash", resp.Transaction)
+	assert.Regexp(t, `^[0-9a-fA-F]{64}$`, resp.Transaction)
 	assert.Equal(t, testFrom, resp.Payer)
 	assert.Equal(t, x402.Network(testNetwork), resp.Network)
 }

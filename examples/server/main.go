@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	ginfw "github.com/gin-gonic/gin"
 	x402 "github.com/x402-foundation/x402/go"
 	x402http "github.com/x402-foundation/x402/go/http"
@@ -22,6 +24,19 @@ import (
 func fatal(msg string, kv ...any) {
 	logger.Default().Error(msg, kv...)
 	os.Exit(1)
+}
+
+type staticAuthProvider struct {
+	apiKey string
+}
+
+func (p *staticAuthProvider) GetAuthHeaders(_ context.Context) (x402http.AuthHeaders, error) {
+	h := map[string]string{"Authorization": p.apiKey}
+	return x402http.AuthHeaders{
+		Verify:    h,
+		Settle:    h,
+		Supported: h,
+	}, nil
 }
 
 func main() {
@@ -51,10 +66,23 @@ func main() {
 	r.Use(ginmw.RequestID(log))
 	r.Use(ginmw.AccessLog())
 	r.Use(ginfw.Recovery())
+	r.Use(cors.New(cors.Config{
+		AllowAllOrigins: true,
+		AllowMethods:    []string{http.MethodGet, http.MethodPost, http.MethodOptions},
+		AllowHeaders:    []string{"Accept", "Authorization", "Content-Type", "Origin", "Payment-Signature"},
+		ExposeHeaders:   []string{"PAYMENT-REQUIRED", "PAYMENT-RESPONSE"},
+		MaxAge:          24 * time.Hour,
+	}))
 
-	facilitatorClient := x402http.NewHTTPFacilitatorClient(&x402http.FacilitatorConfig{
+	facilitatorCfg := &x402http.FacilitatorConfig{
 		URL: cfg.FacilitatorURL,
-	})
+	}
+
+	if cfg.FacilitatorAPIKey != "" {
+		facilitatorCfg.AuthProvider = &staticAuthProvider{apiKey: cfg.FacilitatorAPIKey}
+	}
+
+	facilitatorClient := x402http.NewHTTPFacilitatorClient(facilitatorCfg)
 
 	routes := x402http.RoutesConfig{
 		"GET /weather": {

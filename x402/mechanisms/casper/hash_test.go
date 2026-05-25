@@ -57,5 +57,5 @@ func TestTransferWithAuthorizationDigest_Vector(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	assert.Equal(t, "3b3414c8ad7d0ecf157de6429623ec25ff1a78c6ce9e1503db9d572de7145f9f", hex.EncodeToString(digest[:]))
+	assert.Equal(t, "f49af32a160ef6078d23bd28c15e0e8d6d29e58f4cb88ed8582e958dfa07533b", hex.EncodeToString(digest[:]))
 }

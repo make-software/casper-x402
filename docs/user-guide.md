@@ -117,12 +117,14 @@ process.
 
 ### Resource server (`examples/server`)
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `PAYEE_ADDRESS` | **yes** | 66-char Casper account hash (format `00<64 hex>`) that will receive payment |
-| `FACILITATOR_URL` | **yes** | URL of the facilitator (`http://localhost:4022` for local dev) |
-| `CAIP2_CHAIN_ID` | **yes** | CAIP-2 network ID, e.g. `casper:casper-net-1` |
-| `ASSET_PACKAGE` | **yes** | 64-char hex CEP-18 token contract package hash |
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `PAYEE_ADDRESS` | **yes** | — | 66-char Casper account hash (format `00<64 hex>`) that will receive payment |
+| `FACILITATOR_URL` | **yes** | — | URL of the facilitator (`http://localhost:4022` for local dev) |
+| `FACILITATOR_API_KEY` | no | — | API key sent as the `Authorization` header on every facilitator request (`/verify`, `/settle`, `/supported`). Required when the facilitator enforces per-organization quotas. Omit for local development without quota enforcement. |
+| `CAIP2_CHAIN_ID` | **yes** | — | CAIP-2 network ID, e.g. `casper:casper-net-1` |
+| `ASSET_PACKAGE` | **yes** | — | 64-char hex CEP-18 token contract package hash |
+
 
 ### Client (`examples/client`)
 
@@ -145,6 +147,7 @@ RPCURL_CASPER_CASPER_NET_1=http://127.0.0.1:11101/rpc
 # RESOURCE SERVER
 PAYEE_ADDRESS=000000000000000000000000000000000000000000000000000000000000000000
 FACILITATOR_URL=http://localhost:4022
+FACILITATOR_API_KEY=your-api-key-here
 CAIP2_CHAIN_ID=casper:casper-net-1
 ASSET_PACKAGE=0128f81ca57b94a40650c23d314f5d7b363e7dd4acccb714d1d2365d27a41843
 

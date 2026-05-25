@@ -111,7 +111,7 @@ including `unsupported_scheme`, `network_mismatch`, `malformed_payload`,
 - `requirements.extra.name` and `requirements.extra.version` are present (they
   seed the EIP-712 domain).
 - The signature is 65 bytes and verifies under the Casper public key against
-  the `TransferAuthorization` EIP-712 digest built from the
+  the `TransferWithAuthorization` EIP-712 digest built from the
   `casper-ecosystem/casper-eip-712` types.
 
 ### `POST /settle`
@@ -288,7 +288,7 @@ func (c *ExactCasperScheme) CreatePaymentPayload(ctx context.Context, requiremen
   build the Casper EIP-712 domain.
 - Generates a 32-byte random `nonce`.
 - Sets `validAfter = now - 600` and `validBefore = now + MaxTimeoutSeconds`.
-- Signs the `TransferAuthorization` typed-data digest via
+- Signs the `TransferWithAuthorization` typed-data digest via
   `signer.SignEIP712`.
 
 ### `x402/mechanisms/casper/exact/server`

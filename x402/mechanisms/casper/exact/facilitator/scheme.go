@@ -72,8 +72,6 @@ func (f *ExactCasperScheme) GetExtra(network x402.Network) map[string]interface{
 
 	return map[string]interface{}{
 		"feePayer": feePayer,
-		"name":     "Cep18x402",
-		"version":  "1",
 	}
 }
 
