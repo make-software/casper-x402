@@ -35,8 +35,7 @@ Lists the `(scheme, network)` pairs supported by this facilitator.
       "extra": {
         "feePayer": "00...",
         "decimals": 9,
-        "symbol": "CSPR",
-        "name": "Cep18x402",
+        "name": "<token-name>",
         "version": "1"
       }
     }
@@ -66,7 +65,7 @@ without submitting any on-chain state.
       "authorization": {
         "from":        "00<64 hex>",
         "to":          "00<64 hex>",
-        "value":       "10000",
+        "value":       "7500000000",
         "validAfter":  "1710000000",
         "validBefore": "1710000900",
         "nonce":       "<64 hex — 32 bytes>"
@@ -77,9 +76,9 @@ without submitting any on-chain state.
     "scheme": "exact",
     "network": "casper:casper-net-1",
     "payTo": "00<64 hex>",
-    "amount": "10000",
+    "amount": "7500000000",
     "asset": "<64 hex — CEP-18 package hash>",
-    "extra": {"name": "Cep18x402", "version": "1", "decimals": "2", "symbol": "X402"},
+    "extra": {"name": "<token-name>", "version": "1", "decimals": "9"},
     "maxTimeoutSeconds": 900
   }
 }
@@ -165,8 +164,8 @@ exposes an unprotected `GET /health`.
 
 - **Without** a valid `PAYMENT-SIGNATURE` header → `402 Payment Required` with
   a body describing the accepted payment options (scheme `exact`, network
-  configured via `CAIP2_CHAIN_ID`, asset `ASSET_PACKAGE`, price `$0.001`
-  mapped by the registered money parser to `10000` units of the CEP-18 token).
+  configured via `CAIP2_CHAIN_ID`, asset `ASSET_PACKAGE`, amount `7500000000`
+  base units of the CEP-18 token at 9 decimals ≈ 7.5 tokens).
 - **With** a valid payment → `200 OK`:
 
 ```json
@@ -319,7 +318,7 @@ are present (they flow into the EIP-712 domain on the client and facilitator).
 
 ```go
 type ExactCasperSchemeConfig struct {
-    StandardPaymentMotes *uint64 // optional override for settlement gas payment
+    LimitedPaymentMotes *uint64 // optional override for settlement gas payment (default 7_000_000_000)
 }
 
 type ExactCasperScheme struct { /* ... */ }
@@ -335,11 +334,12 @@ func (f *ExactCasperScheme) Settle(ctx context.Context, payload x402types.Paymen
 
 `Settle` builds a Casper `TransactionV1` calling
 `transfer_with_authorization` on the asset's `ByPackageHash` target with the
-following named args: `from`, `to`, `amount`, `valid_after`, `valid_before`,
-`nonce`, `public_key`, `signature`. The transaction is signed with the
-facilitator's key for the target network, submitted via
-`FacilitatorCasperSigner.PutTransaction`, and awaited with
-`WaitForTransaction`.
+following named args: `from`, `to`, `amount` (`CLUInt256`), `valid_after`
+(`CLUInt64`), `valid_before` (`CLUInt64`), `nonce`, `public_key`, `signature`.
+The transaction uses `LimitedMode` with a gas budget of `LimitedPaymentMotes`
+(default `7_000_000_000` motes). It is signed with the facilitator's key for
+the target network, submitted via `FacilitatorCasperSigner.PutTransaction`,
+and awaited with `WaitForTransaction`.
 
 ### `x402/signers/casper`
 

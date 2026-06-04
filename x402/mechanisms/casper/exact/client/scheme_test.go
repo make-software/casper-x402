@@ -2,13 +2,16 @@ package client_test
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
+	"math/big"
 	"testing"
 	"time"
 
 	"casper_x402_facilitator/x402/mechanisms/casper"
 	casperClient "casper_x402_facilitator/x402/mechanisms/casper/exact/client"
 
+	eip712 "github.com/casper-ecosystem/casper-eip-712/go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/x402-foundation/x402/go/types"
@@ -142,4 +145,56 @@ func TestCreatePaymentPayload_NonceIsRandom(t *testing.T) {
 	auth1 := p1.Payload["authorization"].(map[string]interface{})
 	auth2 := p2.Payload["authorization"].(map[string]interface{})
 	assert.NotEqual(t, auth1["nonce"], auth2["nonce"])
+}
+
+func TestHashStruct_ValidTimestampsBigIntAndUint64Match(t *testing.T) {
+	fromAddr, err := eip712.NewAddressFromHex("0x01aabbccddeeff0011223344556677889900aabbccddeeff001122334455667788")
+	require.NoError(t, err)
+	toAddr, err := eip712.NewAddressFromHex("0x00aabbccddeeff0011223344556677889900aabbccddeeff001122334455667788")
+	require.NoError(t, err)
+
+	value := big.NewInt(1000000)
+	validAfter := int64(1700000000)
+	validBefore := int64(1700001000)
+
+	nonceRaw, err := hex.DecodeString("aabbccddeeff0011223344556677889900aabbccddeeff001122334455667788")
+	require.NoError(t, err)
+	var nonce [32]byte
+	copy(nonce[:], nonceRaw)
+
+	primaryType := "TransferWithAuthorization"
+	types := eip712.TypeDefinitions{
+		"TransferWithAuthorization": {
+			{Name: "from", Type: "address"},
+			{Name: "to", Type: "address"},
+			{Name: "value", Type: "uint256"},
+			{Name: "validAfter", Type: "uint256"},
+			{Name: "validBefore", Type: "uint256"},
+			{Name: "nonce", Type: "bytes32"},
+		},
+	}
+
+	bigIntMessage := map[string]interface{}{
+		"from":        fromAddr,
+		"to":          toAddr,
+		"value":       value,
+		"validAfter":  big.NewInt(validAfter),
+		"validBefore": big.NewInt(validBefore),
+		"nonce":       nonce,
+	}
+	uint64Message := map[string]interface{}{
+		"from":        fromAddr,
+		"to":          toAddr,
+		"value":       value,
+		"validAfter":  uint64(validAfter),
+		"validBefore": uint64(validBefore),
+		"nonce":       nonce,
+	}
+
+	bigIntStructHash, err := eip712.HashStruct(primaryType, types, bigIntMessage)
+	require.NoError(t, err)
+	uint64StructHash, err := eip712.HashStruct(primaryType, types, uint64Message)
+	require.NoError(t, err)
+
+	assert.Equal(t, bigIntStructHash, uint64StructHash)
 }

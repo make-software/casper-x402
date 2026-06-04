@@ -17,6 +17,7 @@ type Env struct {
 	FacilitatorAPIKey string `env:"FACILITATOR_API_KEY"`
 	ChainID           string `env:"CAIP2_CHAIN_ID,required"`
 	AssetPackage      string `env:"ASSET_PACKAGE,required"`
+	AssetName         string `env:"ASSET_NAME,required"`
 }
 
 func (e *Env) Parse() error {

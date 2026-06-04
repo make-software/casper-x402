@@ -25,7 +25,7 @@ import (
 	x402types "github.com/x402-foundation/x402/go/types"
 )
 
-const defaultPaymentMotes uint64 = 2_500_000_000
+const defaultPaymentMotes uint64 = 7_000_000_000
 
 var transferWithAuthorizationTypes = eip712.TypeDefinitions{
 	"TransferWithAuthorization": {
@@ -39,7 +39,7 @@ var transferWithAuthorizationTypes = eip712.TypeDefinitions{
 }
 
 type ExactCasperSchemeConfig struct {
-	StandardPaymentMotes *uint64
+	LimitedPaymentMotes *uint64
 }
 
 type ExactCasperScheme struct {
@@ -214,8 +214,8 @@ func (f *ExactCasperScheme) Verify(
 }
 
 func (f *ExactCasperScheme) paymentMotes() uint64 {
-	if f.config.StandardPaymentMotes != nil {
-		return *f.config.StandardPaymentMotes
+	if f.config.LimitedPaymentMotes != nil {
+		return *f.config.LimitedPaymentMotes
 	}
 
 	return defaultPaymentMotes
@@ -257,12 +257,12 @@ func (f *ExactCasperScheme) Settle(
 	if !ok {
 		return nil, x402.NewSettleError(ErrBuildDeployFailed, verifyResp.Payer, network, "", "invalid amount")
 	}
-	validAfterInt, ok := new(big.Int).SetString(p.Authorization.ValidAfter, 10)
-	if !ok {
+	validAfterInt, err := strconv.ParseUint(p.Authorization.ValidAfter, 10, 64)
+	if err != nil {
 		return nil, x402.NewSettleError(ErrBuildDeployFailed, verifyResp.Payer, network, "", "invalid validAfter")
 	}
-	validBeforeInt, ok := new(big.Int).SetString(p.Authorization.ValidBefore, 10)
-	if !ok {
+	validBeforeInt, err := strconv.ParseUint(p.Authorization.ValidBefore, 10, 64)
+	if err != nil {
 		return nil, x402.NewSettleError(ErrBuildDeployFailed, verifyResp.Payer, network, "", "invalid validBefore")
 	}
 	nonceBytes, err := hex.DecodeString(p.Authorization.Nonce)
@@ -281,8 +281,8 @@ func (f *ExactCasperScheme) Settle(
 	args.AddArgument("from", clvalue.NewCLKey(fromKey)).
 		AddArgument("to", clvalue.NewCLKey(toKey)).
 		AddArgument("amount", *clvalue.NewCLUInt256(amountInt)).
-		AddArgument("valid_after", *clvalue.NewCLUInt256(validAfterInt)).
-		AddArgument("valid_before", *clvalue.NewCLUInt256(validBeforeInt)).
+		AddArgument("valid_after", *clvalue.NewCLUInt64(validAfterInt)).
+		AddArgument("valid_before", *clvalue.NewCLUInt64(validBeforeInt)).
 		AddArgument("nonce", clListU8WithBytes(nonceBytes)).
 		AddArgument("public_key", clvalue.NewCLPublicKey(pubKey)).
 		AddArgument("signature", clListU8WithBytes(sigBytes))
@@ -321,7 +321,7 @@ func (f *ExactCasperScheme) Settle(
 			Limited: &types.LimitedMode{
 				GasPriceTolerance: 1,
 				StandardPayment:   true,
-				PaymentAmount:     14_000_000_000, // 4 CSPR
+				PaymentAmount:     f.paymentMotes(),
 			},
 		},
 		types.NewNamedArgs(&args),
