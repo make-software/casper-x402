@@ -1,12 +1,14 @@
 # User Guide
 
-This guide walks through installing, configuring and running the three
+This guide walks through installing, configuring and running the four
 applications shipped in this repository: the **x402 facilitator server**, the
-demo **resource server**, and the demo **client**.
+demo **resource server**, the demo **client**, and the **CSPR.click React web
+app**.
 
 The main application is [`apps/facilitator`](../apps/facilitator). The
-[`examples/server`](../examples/server) and [`examples/client`](../examples/client) apps exist
-only to exercise the facilitator end-to-end.
+[`examples/server`](../examples/server), [`examples/client`](../examples/client)
+and [`examples/csprclick-x402`](../examples/csprclick-x402) apps exist only to
+exercise the facilitator end-to-end.
 
 ---
 
@@ -15,6 +17,7 @@ only to exercise the facilitator end-to-end.
 | Tool | Version | Notes |
 |------|---------|-------|
 | Go | `1.25+` | matches `go.mod` |
+| Node.js + npm | Node version compatible with Vite `7.x` | only required for the CSPR.click React web app |
 | A Casper node RPC endpoint | — | local NCTL (`http://127.0.0.1:11101/rpc`), testnet or mainnet |
 | A funded Casper account | ED25519 / SECP256K1 PEM file | facilitator pays for the settlement deploy |
 | A deployed CEP-18 x402 token contract | 32-byte package hash | see [`infra/local/deployer/wasm/Cep18X402.wasm`](../infra/local/deployer/wasm/Cep18X402.wasm) for a reference wasm |
@@ -52,6 +55,15 @@ demo client against them from the host:
 go run ./examples/client
 ```
 
+You can also run the CSPR.click React web app against the same local resource
+server:
+
+```bash
+cd examples/csprclick-x402
+npm install
+npm start
+```
+
 If you just want the network and want to run the facilitator/server locally
 (from `go run ...`), start only the base services:
 
@@ -79,7 +91,7 @@ go mod download
 
 ## 3. Configuration
 
-All three apps read environment variables and transparently load a `.env` file
+The Go apps read environment variables and transparently load a `.env` file
 from the working directory.
 
 ### Facilitator (`apps/facilitator`)
@@ -196,6 +208,19 @@ go run ./examples/server
 
 ```bash
 go run ./examples/client
+```
+
+### Optional — CSPR.click React web app
+
+The React app in [`examples/csprclick-x402`](../examples/csprclick-x402) can be
+used instead of the headless client. It uses CSPR.click to manage the signature
+of EIP-712 typed data, then submits the signed x402 payment payload to the demo
+resource server.
+
+```bash
+cd examples/csprclick-x402
+npm install
+npm start
 ```
 
 ## 5. Common operations

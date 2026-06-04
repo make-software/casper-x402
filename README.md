@@ -5,13 +5,14 @@ A Go implementation of the [x402 payment protocol](https://x402.org) for the
 to the x402 ecosystem so HTTP APIs can require micropayments settled on-chain
 using CEP-18 tokens authorized via EIP-712 signatures.
 
-This repository delivers three components:
+This repository delivers four components:
 
 | Component | Purpose | Port |
 |-----------|---------|------|
 | **Facilitator** (`apps/facilitator`) | x402 facilitator HTTP server — verifies signatures and settles payments on Casper | `4022` |
 | **Resource Server** (`examples/server`) | Demo Gin server that exposes a paid `GET /weather` endpoint protected by x402 | `4021` |
 | **Client** (`examples/client`) | Headless demo client that consumes the paid endpoint and signs a payment authorization | — |
+| **CSPR.click Web App** (`examples/csprclick-x402`) | React application using CSPR.click to manage the signature of EIP-712 typed data for x402 payments | — |
 
 The core payment scheme lives under
 [`x402/mechanisms/casper/`](x402/mechanisms/casper) and integrates with the
@@ -134,7 +135,8 @@ casper-x402-facilitator/
 │   └── facilitator/       # x402 facilitator HTTP server (:4022)
 ├── examples/
 │   ├── server/            # demo resource server (:4021)
-│   └── client/            # demo headless client
+│   ├── client/            # demo headless client
+│   └── csprclick-x402/    # React + CSPR.click typed-data signing demo
 ├── x402/
 │   ├── mechanisms/casper/ # exact-scheme client/server/facilitator + shared types
 │   └── signers/casper/    # Casper SDK-backed signer implementations
