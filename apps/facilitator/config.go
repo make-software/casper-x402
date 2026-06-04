@@ -20,9 +20,11 @@ type NetworkKey struct {
 }
 
 type Env struct {
-	LogLevel string   `env:"LOG_LEVEL" envDefault:"info"`
-	Port     int      `env:"PORT" envDefault:"4022"`
-	Networks []string `env:"CASPER_NETWORKS" envDefault:"casper:casper-test"`
+	LogLevel string `env:"LOG_LEVEL" envDefault:"info"`
+
+	Port                    int      `env:"PORT" envDefault:"4022"`
+	Networks                []string `env:"CASPER_NETWORKS" envDefault:"casper:casper-test"`
+	TransactionPaymentMotes uint64   `env:"TRANSACTION_PAYMENT_MOTES" envDefault:"7000000000"`
 
 	// Keys is populated by Parse(). Keyed by the raw CAIP-2 network id
 	// (e.g. "casper:casper-test").

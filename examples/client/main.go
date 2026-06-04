@@ -9,6 +9,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -61,6 +62,14 @@ func main() {
 	}
 
 	fmt.Printf("Status: %d\n", resp.StatusCode)
+	paymentResponse := resp.Header.Get("Payment-Response")
+	if paymentResponse != "" {
+		paymentResponse, err = decodePaymentResponse(paymentResponse)
+		if err != nil {
+			log.Fatalf("failed to decode Payment-Response header: %v", err)
+		}
+	}
+	fmt.Printf("Payment-Response header: %s\n", paymentResponse)
 
 	var result map[string]interface{}
 	if err := json.Unmarshal(body, &result); err != nil {
@@ -72,4 +81,12 @@ func main() {
 	fmt.Printf("Weather:     %v\n", result["weather"])
 	fmt.Printf("Temperature: %v\n", result["temperature"])
 	fmt.Printf("Timestamp:   %v\n", result["timestamp"])
+}
+
+func decodePaymentResponse(paymentResponse string) (string, error) {
+	decoded, err := base64.StdEncoding.DecodeString(paymentResponse)
+	if err != nil {
+		return "", err
+	}
+	return string(decoded), nil
 }

@@ -80,7 +80,7 @@ go mod download
 ### 2. Configure environment variables
 
 Copy the provided `.env` template and fill in values (see
-[docs/user-guide.md](docs/user-guide.md#configuration) for the full reference):
+[docs/user-guide.md](docs/user-guide.md#configuration) for the full reference). Or use `.env.testnet` if you're going to test on the Testnet network.
 
 ```bash
 # FACILITATOR
@@ -95,6 +95,7 @@ PAYEE_ADDRESS=00<32-byte-account-hash-hex>
 FACILITATOR_URL=http://localhost:4022
 CAIP2_CHAIN_ID=casper:casper-net-1
 ASSET_PACKAGE=<32-byte-cep18-package-hash-hex>
+ASSET_NAME=<cep18-token-name>
 
 # CLIENT
 CLIENT_PRIVATE_KEY_PATH=./user2.pem

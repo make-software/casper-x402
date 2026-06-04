@@ -91,6 +91,7 @@ Global variables:
 | `PORT` | no | `4022` | HTTP listen port |
 | `LOG_LEVEL` | no | `info` | `debug` \| `info` \| `warn` \| `error` |
 | `CASPER_NETWORKS` | no | `casper:casper-test` | Comma-separated CAIP-2 network IDs to accept (e.g. `casper:casper-net-1,casper:casper-test`) |
+| `TRANSACTION_PAYMENT_MOTES` | no | `7000000000` | Gas budget (motes) for each settlement transaction; 1 CSPR = 1 000 000 000 motes |
 
 Per-network variables — each entry in `CASPER_NETWORKS` must define its own
 key and RPC endpoint via suffixed env vars. The suffix is the CAIP-2 network
@@ -124,6 +125,7 @@ process.
 | `FACILITATOR_API_KEY` | no | — | API key sent as the `Authorization` header on every facilitator request (`/verify`, `/settle`, `/supported`). Required when the facilitator enforces per-organization quotas. Omit for local development without quota enforcement. |
 | `CAIP2_CHAIN_ID` | **yes** | — | CAIP-2 network ID, e.g. `casper:casper-net-1` |
 | `ASSET_PACKAGE` | **yes** | — | 64-char hex CEP-18 token contract package hash |
+| `ASSET_NAME` | **yes** | — | CEP-18 token name (e.g. `Cep18x402`); included in the EIP-712 domain and forwarded to clients as `extra.name` |
 
 
 ### Client (`examples/client`)
@@ -150,6 +152,7 @@ FACILITATOR_URL=http://localhost:4022
 FACILITATOR_API_KEY=your-api-key-here
 CAIP2_CHAIN_ID=casper:casper-net-1
 ASSET_PACKAGE=0128f81ca57b94a40650c23d314f5d7b363e7dd4acccb714d1d2365d27a41843
+ASSET_NAME=Cep18x402
 
 # CLIENT
 CLIENT_PRIVATE_KEY_PATH=./user2.pem

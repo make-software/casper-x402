@@ -47,6 +47,7 @@ func main() {
 
 	log := logger.Default()
 
+	assetName := cfg.AssetName
 	assetPackage := strings.Replace(cfg.AssetPackage, "hash-", "", -1)
 	x402Network := x402.Network(cfg.ChainID)
 
@@ -102,9 +103,9 @@ func main() {
 	casperScheme := casperServer.NewExactCasperScheme().
 		RegisterMoneyParser(func(amount float64, network x402.Network) (*x402.AssetAmount, error) {
 			return &x402.AssetAmount{
-				Amount: fmt.Sprintf("10000"),
+				Amount: fmt.Sprintf("%d", 7_500000000),
 				Asset:  assetPackage,
-				Extra:  map[string]interface{}{"name": "Cep18x402", "symbol": "X402", "version": "1", "decimals": "2"},
+				Extra:  map[string]interface{}{"name": assetName, "version": "1", "decimals": "9"},
 			}, nil
 		}).
 		RegisterAsset(cfg.ChainID, assetPackage, 2)
@@ -120,10 +121,9 @@ func main() {
 			logger.Ctx(ctx.Ctx).Info("Before verify hook - validating payment requirements",
 				"scheme", ctx.Requirements.GetScheme(),
 				"network", ctx.Requirements.GetNetwork())
-			// log paymentbytes and payloadbytes
-			logger.Ctx(ctx.Ctx).Info("Payment details",
-				"payment_bytes", ctx.RequirementsBytes,
-				"payload_bytes", ctx.PayloadBytes)
+			logger.Ctx(ctx.Ctx).Debug("Payment details",
+				"requirements_json", string(ctx.RequirementsBytes),
+				"payload_json", string(ctx.PayloadBytes))
 			// Example: Abort verification
 			// return &x402.BeforeHookResult{Abort: true, Reason: "Custom validation failed"}, nil
 			return nil, nil

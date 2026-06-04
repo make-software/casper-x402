@@ -107,7 +107,8 @@ func (s *FacilitatorSigner) WaitForTransaction(ctx context.Context, network stri
 			if err != nil {
 				continue
 			}
-			if res.ExecutionInfo == nil || res.ExecutionInfo.BlockHeight == 0 {
+			if res.ExecutionInfo == nil || res.ExecutionInfo.BlockHeight == 0 ||
+				res.ExecutionInfo.ExecutionResult == nil {
 				continue
 			}
 
