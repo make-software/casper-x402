@@ -1,12 +1,14 @@
 # User Guide
 
-This guide walks through installing, configuring and running the three
+This guide walks through installing, configuring and running the four
 applications shipped in this repository: the **x402 facilitator server**, the
-demo **resource server**, and the demo **client**.
+demo **resource server**, the demo **client**, and the **CSPR.click React web
+app**.
 
 The main application is [`apps/facilitator`](../apps/facilitator). The
-[`examples/server`](../examples/server) and [`examples/client`](../examples/client) apps exist
-only to exercise the facilitator end-to-end.
+[`examples/server`](../examples/server), [`examples/client`](../examples/client)
+and [`examples/csprclick-x402`](../examples/csprclick-x402) apps exist only to
+exercise the facilitator end-to-end.
 
 ---
 
@@ -15,9 +17,10 @@ only to exercise the facilitator end-to-end.
 | Tool | Version | Notes |
 |------|---------|-------|
 | Go | `1.25+` | matches `go.mod` |
+| Node.js + npm | Node version compatible with Vite `7.x` | only required for the CSPR.click React web app |
 | A Casper node RPC endpoint | — | local NCTL (`http://127.0.0.1:11101/rpc`), testnet or mainnet |
 | A funded Casper account | ED25519 / SECP256K1 PEM file | facilitator pays for the settlement deploy |
-| A deployed CEP-18 x402 token contract | 32-byte package hash | see [`infra/local/deployer/wasm/Cep18X402.wasm`](../infra/local/deployer/wasm/Cep18X402.wasm) for a reference wasm |
+| A deployed CEP-18 x402 token contract | 32-byte package hash | see [`infra/local/deployer/Cep18X402.wasm`](../infra/local/deployer/Cep18X402.wasm) for a reference wasm |
 
 ### Local NCTL with Docker Compose
 
@@ -36,13 +39,19 @@ The stack wires together everything needed for an end-to-end local run:
 | `nctl` | `makesoftware/casper-nctl:latest`                                            | Local Casper network (`casper-net-1`). Healthchecks on `/status` until the node reaches `Validate`. | `11101` (RPC), `14101` (status), `18101` (SSE), `25101` |
 | `nctlexplorer` | `casper-nctl-explorer:latest`                                                | Web explorer for the local network, pointed at `nctl`. | `8080` |
 | `nctl-init` | `busybox`                                                                    | One-shot: fixes permissions on the shared `casper-nctl-assets` volume so the deployer can write to it. | — |
-| `deployer` | `rust:bookworm` (runs `./deployer`)                                          | One-shot: deploys the CEP-18 x402 token contract and writes the package hash into the shared volume as `net-1/contract_package_hash`. | — |
+| `deployer` | `rust:bookworm` (runs `./deployer`)                                          | One-shot: deploys the CEP-18 x402 token contract and writes the package hash into the shared volume as `net-1/contract_package_hash`. It also makes several CEP-18 transfers to users for testing. | — |
 | `facilitator` | built from [`infra/docker/build-facilitator.Dockerfile`](../infra/docker/build-facilitator.Dockerfile) | The facilitator under test. Reads the NCTL `user-1` secret key from the shared volume and exports it as `SECRET_KEY_PEM_CASPER_CASPER_NET_1` at container start. | `4022` |
 | `server` | built from [`infra/docker/build-server.Dockerfile`](../infra/docker/build-server.Dockerfile)           | The demo resource server. Reads `ASSET_PACKAGE` from the shared volume (written by the deployer) at container start. | `4021` |
+| `csprclick-x402` | built from [`infra/docker/build-csprclick-x402.Dockerfile`](../infra/docker/build-csprclick-x402.Dockerfile) | React demo app that uses CSPR.click to sign the EIP-712 typed data payment authorization. | `4020` |
 
 All services share a private `dev` bridge network and a
 `casper-nctl-assets` named volume — that volume is how the NCTL keys and the
 deployed contract package hash are handed between containers.
+
+The `deployer` service makes several transfers of 50k tokens of the CEP-18 
+token to the three default user wallets in the NCTL network. Optionally, it
+can make an additional transfer to an account defined with then environment
+key `USER_ACCOUNT_HASH_1` (see docker-compose.yaml).
 
 Once `docker compose up -d` returns, both the facilitator (`:4022`) and the
 demo resource server (`:4021`) are healthy and ready. You can then run the
@@ -50,6 +59,16 @@ demo client against them from the host:
 
 ```bash
 go run ./examples/client
+```
+
+The Docker stack also serves the CSPR.click React web app at
+`http://localhost:4020`. To run it directly against the same local resource
+server instead:
+
+```bash
+cd examples/csprclick-x402
+npm install
+npm start
 ```
 
 If you just want the network and want to run the facilitator/server locally
@@ -79,7 +98,7 @@ go mod download
 
 ## 3. Configuration
 
-All three apps read environment variables and transparently load a `.env` file
+The Go apps read environment variables and transparently load a `.env` file
 from the working directory.
 
 ### Facilitator (`apps/facilitator`)
@@ -196,6 +215,21 @@ go run ./examples/server
 
 ```bash
 go run ./examples/client
+```
+
+### Optional — CSPR.click React web app
+
+The React app in [`examples/csprclick-x402`](../examples/csprclick-x402) can be
+used instead of the headless client. It uses CSPR.click to manage the signature
+of EIP-712 typed data, then submits the signed x402 payment payload to the demo
+resource server. The paid weather endpoint can be changed at build time with
+`VITE_WEATHER_URL`; when empty, it defaults to
+`http://localhost:4021/weather?city=San%20Francisco`.
+
+```bash
+cd examples/csprclick-x402
+npm install
+npm start
 ```
 
 ## 5. Common operations
