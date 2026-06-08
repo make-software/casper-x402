@@ -4,9 +4,10 @@ import { Card, CardColumn, CardTitle, Divider, FieldLabel, FieldValue, ResultTex
 import { PublicKey } from 'casper-js-sdk';
 import { PaymentRequirement, PaymentRequiredHeader, parseAmount, parseBase64Json, formatDisplayAmount } from './x402-utils';
 
-const WEATHER_URL = 'http://localhost:4021/weather?city=San%20Francisco';
+const DEFAULT_WEATHER_URL = 'http://localhost:4021/weather?city=San%20Francisco';
 const DEFAULT_DOMAIN_NAME = 'n/a';
 const DEFAULT_DOMAIN_VERSION = 'n/a';
+const WEATHER_URL = import.meta.env.VITE_WEATHER_URL || DEFAULT_WEATHER_URL;
 
 export default function SignedTypedData({ publicKey }: { publicKey: string }) {
   const [verifyResult, setVerifyResult] = useState<string>('');

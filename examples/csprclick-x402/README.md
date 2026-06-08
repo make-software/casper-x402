@@ -29,6 +29,18 @@ The app expects the resource server demo in `../server` running at:
 http://localhost:4021
 ```
 
+The paid weather endpoint can be changed at build time with `VITE_WEATHER_URL`:
+
+```sh
+VITE_WEATHER_URL="http://localhost:4021/weather?city=San%20Francisco" npm run build
+```
+
+If `VITE_WEATHER_URL` is empty, the app defaults to:
+
+```text
+http://localhost:4021/weather?city=San%20Francisco
+```
+
 When the endpoint returns a `402` response with a `Payment-Required` header,
 the page displays the payment details. Click **Get paid resource** to sign the
 authorization and request the protected resource.

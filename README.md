@@ -12,7 +12,7 @@ This repository delivers four components:
 | **Facilitator** (`apps/facilitator`) | x402 facilitator HTTP server — verifies signatures and settles payments on Casper | `4022` |
 | **Resource Server** (`examples/server`) | Demo Gin server that exposes a paid `GET /weather` endpoint protected by x402 | `4021` |
 | **Client** (`examples/client`) | Headless demo client that consumes the paid endpoint and signs a payment authorization | — |
-| **CSPR.click Web App** (`examples/csprclick-x402`) | React application using CSPR.click to manage the signature of EIP-712 typed data for x402 payments | — |
+| **CSPR.click Web App** (`examples/csprclick-x402`) | React application using CSPR.click to manage the signature of EIP-712 typed data for x402 payments | `4020` |
 
 The core payment scheme lives under
 [`x402/mechanisms/casper/`](x402/mechanisms/casper) and integrates with the
@@ -67,7 +67,7 @@ Under the hood:
 - Go `1.25+`
 - A funded Casper account (ED25519 or SECP256K1) for the facilitator
 - A deployed CEP-18 x402 token contract (`Cep18X402.wasm` is provided under
-  [`infra/local/deployer/wasm`](infra/local/deployer/wasm) for local/testnet testing)
+  [`infra/local/deployer`](infra/local/deployer) for local/testnet testing)
 - Access to a Casper JSON-RPC endpoint (testnet, mainnet, or local NCTL)
 
 ## Quick start

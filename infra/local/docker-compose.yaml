@@ -38,30 +38,25 @@ services:
       start_period: 30s
   # ── One-shot deployer ─────────────────────────────────────────────────────
   deployer:
-    image: rust:bookworm
+    build:
+      context: ../..
+      dockerfile: infra/docker/build-deployer.Dockerfile
     user: "0"
     networks: [dev]
     working_dir: /app
-    command: ./deployer
-#    command: /bin/bash -c "tail -f /dev/null"
     depends_on:
       nctl:
         condition: service_healthy
     volumes:
       - casper-nctl-assets:/casper-nctl/assets
-      - ./deployer:/app
     environment:
-      RUST_LOG: debug
-      RUST_BACKTRACE: full
-      ODRA_LOG_LEVEL: debug
-      ODRA_CASPER_LIVENET_NODE_ADDRESS: http://nctl:11101/rpc
-      ODRA_CASPER_LIVENET_CHAIN_NAME: casper-net-1
-      ODRA_CASPER_LIVENET_EVENTS_URL: http://nctl:18101/events
-      ODRA_CASPER_LIVENET_SECRET_KEY_PATH: /casper-nctl/assets/net-1/faucet/secret_key.pem
-      ODRA_CASPER_LIVENET_KEY_1: /casper-nctl/assets/net-1/users/user-1/secret_key.pem
+      NODE_ADDRESS: http://nctl:11101/rpc
+      CHAIN_NAME: casper-net-1
+      USER_1: /casper-nctl/assets/net-1/users/user-1/secret_key.pem
+      USER_2: /casper-nctl/assets/net-1/users/user-2/secret_key.pem
+      USER_3: /casper-nctl/assets/net-1/users/user-3/secret_key.pem
+      USER_ACCOUNT_HASH_1: 'account-hash-0000000000000000000000000000000000000000000000000000000000000000'
       X402_CONTRACT_ADDRESS_FILE: /casper-nctl/assets/net-1/contract_package_hash
-      EXTERNAL_ACCOUNT_HASH_1: account-hash-313d2a19e961f0f8ab3ca595daa0511aa2b82acd8df6d1642dc80d3c7ca49977
-      EXTERNAL_ACCOUNT_HASH_2: account-hash-9fa1fc0808d3a5b9ea9f3af4ca7c8c3655568fdf378d8afdf8a7e56e58abbfd4
     healthcheck:
       test: ["CMD-SHELL", "test -f /casper-nctl/assets/net-1/contract_package_hash"]
       interval: 5s
@@ -112,6 +107,7 @@ services:
       CAIP2_CHAIN_ID: 'casper:casper-net-1'
       FACILITATOR_URL: 'http://facilitator:4022'
       PAYEE_ADDRESS: '000000000000000000000000000000000000000000000000000000000000000000'
+      ASSET_NAME: 'Casper X402 Token'
     entrypoint: ["/bin/sh", "-c"]
     # PAYEE_ADDRESS and ASSET_PACKAGE are read from NCTL assets at runtime.
     command:
@@ -120,10 +116,23 @@ services:
         exec /app/server
     volumes:
       - casper-nctl-assets:/casper-nctl/assets:ro
+  # ── CSPR.click React Demo ────────────────────────────────────────────────
+  csprclick-x402:
+    build:
+      context: ../..
+      dockerfile: infra/docker/build-csprclick-x402.Dockerfile
+      args:
+        VITE_WEATHER_URL: 'http://localhost:4021/weather?city=San%20Francisco'
+    container_name: csprclick-x402
+    networks: [dev]
+    depends_on:
+      server:
+        condition: service_started
+    ports:
+      - "4020:80"
 networks:
   dev:
     driver: bridge
 
 volumes:
   casper-nctl-assets:
-
