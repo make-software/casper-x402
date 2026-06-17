@@ -7,11 +7,11 @@ WORKDIR /app/go
 RUN apk add --no-cache git
 
 # Download Go module dependencies first (for layer caching)
-COPY go.mod go.sum ./
+COPY go/go.mod go/go.sum ./
 RUN go mod download
 
 # Copy source and build
-COPY . .
+COPY go/ ./
 RUN CGO_ENABLED=0 GOOS=linux go build -o /server ./examples/server
 
 # Runtime stage
