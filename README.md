@@ -46,26 +46,6 @@ typed-data specification.
 
 _Source: [go/docs/architecture.mmd](go/docs/architecture.mmd)_
 
-The sequence is identical across both implementations:
-
-```mermaid
-sequenceDiagram
-    participant C as Client
-    participant R as Resource Server
-    participant F as Facilitator
-    participant N as Casper Network
-
-    C->>R: GET /weather
-    R-->>C: 402 Payment Required
-    C->>C: Build & sign EIP-712 authorization
-    C->>R: GET /weather + PAYMENT-SIGNATURE
-    R->>F: verify / settle
-    F->>N: transfer_with_authorization deploy
-    N-->>F: deploy execution result
-    F-->>R: settlement result
-    R-->>C: protected response
-```
-
 ---
 
 ## Repository layout
@@ -74,7 +54,7 @@ sequenceDiagram
 casper-x402/
 ├── go/        # Go implementation      — see go/README.md
 ├── js/        # TypeScript implementation — see js/README.md
-└── infra/     # Local NCTL stack + Dockerfiles that build both implementations
+└── infra/     # Local NCTL stack + Dockerfiles for the Go examples and CSPR.click React demo
 ```
 
 - **[go/README.md](go/README.md)** — Go module, internal packages, demo apps
