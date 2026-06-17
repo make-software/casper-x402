@@ -1,3 +1,4 @@
+import cors from "cors";
 import { config } from "dotenv";
 import express from "express";
 import { paymentMiddleware, x402ResourceServer } from "@x402/express";
@@ -72,6 +73,20 @@ const casperScheme = new ExactCasperScheme()
 
 // ---- App --------------------------------------------------------------------
 const app = express();
+
+// CORS — mirrors go/examples/server/main.go: AllowAllOrigins + the same method,
+// header, expose-header, and max-age settings so the JS example accepts
+// browser preflight from any origin (including the CSPR.click React demo at
+// http://localhost:4020).
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Accept", "Authorization", "Content-Type", "Origin", "Payment-Signature"],
+    exposedHeaders: ["PAYMENT-REQUIRED", "PAYMENT-RESPONSE"],
+    maxAge: 24 * 60 * 60, // 24h, matching MaxAge: 24 * time.Hour
+  }),
+);
 
 app.use(
   paymentMiddleware(

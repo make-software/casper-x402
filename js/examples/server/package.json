@@ -13,10 +13,12 @@
     "@make-software/casper-x402": "workspace:*",
     "@x402/core": "2.14.0",
     "@x402/express": "2.14.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.18.2"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1"
   }
 }
