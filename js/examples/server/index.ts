@@ -65,10 +65,8 @@ const facilitatorClient = new HTTPFacilitatorClient(facilitatorConfig);
 const assetAmount: AssetAmount = {
   asset: assetPackage,
   amount: "7500000000",
-  extra: { name: cfg.assetName, version: "1", decimals: "9" },
-};
 const casperScheme = new ExactCasperScheme()
-  .registerAsset(chainID, assetPackage, 2)
+  .registerAsset(chainID, assetPackage, 9)
   .registerMoneyParser(() => Promise.resolve(assetAmount));
 
 // ---- App --------------------------------------------------------------------
