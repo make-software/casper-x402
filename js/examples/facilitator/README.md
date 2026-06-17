@@ -1,49 +1,108 @@
-# x402 Facilitator Example
+# @make-software/casper-x402 Facilitator Example
 
-Express.js facilitator service that verifies and settles payments on-chain for the x402 protocol.
+Express.js facilitator service that verifies and settles Casper x402
+payments on-chain. Uses `@make-software/casper-x402/exact/facilitator` and
+`@x402/core/facilitator`.
+
+## Code shape
+
+```typescript
+import { x402Facilitator } from "@x402/core/facilitator";
+import { ExactCasperScheme } from "@make-software/casper-x402/exact/facilitator";
+import { toFacilitatorCasperSigner } from "@make-software/casper-x402";
+import casperSdk from "casper-js-sdk";
+
+const facilitator = new x402Facilitator()
+  .onBeforeVerify(async ctx => /* log or { abort: true, reason } */)
+  .onAfterVerify(async ctx => /* log */)
+  .onVerifyFailure(async ctx => /* log */)
+  .onBeforeSettle(async ctx => /* log or { abort: true, reason } */)
+  .onAfterSettle(async ctx => /* log */)
+  .onSettleFailure(async ctx => /* log */);
+
+for (const network of cfg.networks) {
+  const { pem, algorithm, rpcUrl } = cfg.keys[network];
+  const algo = algorithm === "secp256k1"
+    ? casperSdk.KeyAlgorithm.SECP256K1
+    : casperSdk.KeyAlgorithm.ED25519;
+  const signer = toFacilitatorCasperSigner(
+    casperSdk.PrivateKey.fromPem(pem, algo),
+    rpcUrl,
+  );
+  facilitator.register(
+    network,
+    new ExactCasperScheme(signer, {
+      limitedPaymentMotes: cfg.transactionPaymentMotes,
+    }),
+  );
+}
+```
 
 ## Prerequisites
 
-- Node.js v20+ (install via [nvm](https://github.com/nvm-sh/nvm))
-- pnpm v10 (install via [pnpm.io/installation](https://pnpm.io/installation))
-- Dedicated EVM facilitator private key with Base Sepolia ETH for transaction fees
-- Dedicated SVM facilitator private key with Solana Devnet SOL for transaction fees
+- Node.js `v20+` (install via [nvm](https://github.com/nvm-sh/nvm))
+- pnpm `v10` (install via [pnpm.io/installation](https://pnpm.io/installation))
+- One PEM-encoded Casper private key per supported network, funded with gas
+- A Casper JSON-RPC endpoint per supported network (mainnet, testnet, or NCTL)
 
 ## Setup
 
-1. Copy `.env-local` to `.env`:
+Configuration is read from enviornment variables. See
+[`/.env.template`](../../../env.template) for the full template.
+
+### Global
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `PORT` | no | Server port (default `4022`) |
+| `LOG_LEVEL` | no | `debug` \| `info` \| `warn` \| `error` (default `info`) |
+| `CASPER_NETWORKS` | yes | Comma-separated CAIP-2 ids, e.g. `casper:casper,casper:casper-test` |
+| `TRANSACTION_PAYMENT_MOTES` | no | Gas budget (motes) per settlement (default `7000000000`) |
+
+### Per-network
+
+Every entry in `CASPER_NETWORKS` must set the corresponding `<NET>`-suffixed
+vars. The suffix is the CAIP-2 id uppercased with `:` and `-` replaced by
+`_`:
+
+| CAIP-2 id | Suffix |
+| --- | --- |
+| `casper:casper` | `CASPER_CASPER` |
+| `casper:casper-test` | `CASPER_CASPER_TEST` |
+| `casper:casper-net-1` | `CASPER_CASPER_NET_1` |
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `SECRET_KEY_PEM_<NET>` | yes | PEM-encoded Casper private key. Pays gas for settlements. Supports literal newlines or escaped `\n`. |
+| `SECRET_KEY_ALGO_<NET>` | no | `ed25519` (default) or `secp256k1` |
+| `RPCURL_<NET>` | yes | JSON-RPC endpoint for the network |
+
+Startup fails fast with a single error listing every network missing either
+`SECRET_KEY_PEM_<NET>` or `RPCURL_<NET>`.
+
+> **Security note** — the facilitator key signs settlement transactions and
+> pays gas. Keep it separate from your seller `payTo` wallet and buyer test
+> wallets, and fund it only for facilitator fees.
+
+## Run
+
+Install and build all workspace packages, then start the facilitator:
 
 ```bash
-cp .env-local .env
-```
-
-and fill required environment variables:
-
-- `EVM_PRIVATE_KEY` - Ethereum facilitator private key
-- `SVM_PRIVATE_KEY` - Solana facilitator private key
-- `PORT` - Server port (optional, defaults to 4022)
-
-**⚠️ Security Note:** The facilitator key is the signer used to settle payments on-chain. Keep it separate from your seller `payTo` wallet and buyer test wallets, and make sure it is funded only for facilitator gas/fees.
-
-2. Install and build all packages from the typescript examples root:
-
-```bash
-cd ../../
-pnpm install && pnpm build
-cd facilitator/basic
-```
-
-3. Run the server:
-
-```bash
+cd ../../            # js/ workspace root
+pnpm install
+pnpm build
+cd examples/facilitator
 pnpm dev
 ```
 
-## API Endpoints
+The facilitator listens on `http://localhost:4022`.
 
-### GET /supported
+## API
 
-Returns payment schemes and networks this facilitator supports.
+### `GET /supported`
+
+Returns the payment kinds and signers this facilitator supports:
 
 ```json
 {
@@ -51,173 +110,40 @@ Returns payment schemes and networks this facilitator supports.
     {
       "x402Version": 2,
       "scheme": "exact",
-      "network": "eip155:84532"
-    },
-    {
-      "x402Version": 2,
-      "scheme": "exact",
-      "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
-      "extra": {
-        "feePayer": "..."
-      }
+      "network": "casper:casper-test",
+      "extra": { "feePayer": "..." }
     }
   ],
   "extensions": [],
-  "signers": {
-    "eip155": ["0x..."],
-    "solana": ["..."]
-  }
+  "signers": { "casper:*": ["..."] }
 }
 ```
 
-### POST /verify
+### `POST /verify`
 
-Verifies a payment payload against requirements before settlement.
+Verifies a `PaymentPayload` against `PaymentRequirements`. Returns 200 with
+`{ isValid, payer }`, or 200 with `{ isValid: false, invalidReason, ... }` on
+validation failure (verification errors are part of the x402 protocol and do
+not produce a 4xx HTTP status).
 
-Request:
+### `POST /settle`
 
-```json
-{
-  "paymentPayload": {
-    "x402Version": 2,
-    "resource": {
-      "url": "http://localhost:4021/weather",
-      "description": "Weather data",
-      "mimeType": "application/json"
-    },
-    "accepted": {
-      "scheme": "exact",
-      "network": "eip155:84532",
-      "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
-      "amount": "1000",
-      "payTo": "0x...",
-      "maxTimeoutSeconds": 300,
-      "extra": {
-        "name": "USDC",
-        "version": "2"
-      }
-    },
-    "payload": {
-      "signature": "0x...",
-      "authorization": {}
-    }
-  },
-  "paymentRequirements": {
-    "scheme": "exact",
-    "network": "eip155:84532",
-    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
-    "amount": "1000",
-    "payTo": "0x...",
-    "maxTimeoutSeconds": 300,
-    "extra": {
-      "name": "USDC",
-      "version": "2"
-    }
-  }
-}
-```
+Settles a verified payment on-chain. Returns 200 with
+`{ success, transaction, network, payer }` on success, or
+`{ success: false, errorReason, ... }` on settlement failure.
 
-Response (success):
+### `GET /health`
 
-```json
-{
-  "isValid": true,
-  "payer": "0x..."
-}
-```
+Free healthcheck returning `{ "status": "ok" }`.
 
-Response (failure):
+## Lifecycle hooks
 
-```json
-{
-  "isValid": false,
-  "invalidReason": "invalid_signature"
-}
-```
+Add custom logic before/after each verify and settle operation. Returning
+`{ abort: true, reason }` from a `Before*` hook cancels the operation.
+Returning a result from a `*Failure` hook can recover from the failure.
 
-### POST /settle
+## See also
 
-Settles a verified payment by broadcasting the transaction on-chain.
-
-Request body is identical to `/verify`.
-
-Response (success):
-
-```json
-{
-  "success": true,
-  "transaction": "0x...",
-  "network": "eip155:84532",
-  "payer": "0x..."
-}
-```
-
-Response (failure):
-
-```json
-{
-  "success": false,
-  "errorReason": "insufficient_balance",
-  "transaction": "",
-  "network": "eip155:84532"
-}
-```
-
-## Extending the Example
-
-### Adding Networks
-
-Register additional schemes for other networks:
-
-```typescript
-import { registerExactEvmScheme } from "@x402/evm/exact/facilitator";
-import { registerExactSvmScheme } from "@x402/svm/exact/facilitator";
-
-const facilitator = new x402Facilitator();
-
-registerExactEvmScheme(facilitator, {
-  signer: evmSigner,
-  networks: "eip155:84532",
-});
-
-registerExactSvmScheme(facilitator, {
-  signer: svmSigner,
-  networks: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
-});
-```
-
-### Lifecycle Hooks
-
-Add custom logic before/after verify and settle operations:
-
-```typescript
-const facilitator = new x402Facilitator()
-  .onBeforeVerify(async context => {
-    // Log or validate before verification
-  })
-  .onAfterVerify(async context => {
-    // Track verified payments
-  })
-  .onVerifyFailure(async context => {
-    // Handle verification failures
-  })
-  .onBeforeSettle(async context => {
-    // Validate before settlement
-    // Return { abort: true, reason: "..." } to cancel
-  })
-  .onAfterSettle(async context => {
-    // Track successful settlements
-  })
-  .onSettleFailure(async context => {
-    // Handle settlement failures
-  });
-```
-
-## Network Identifiers
-
-Networks use [CAIP-2](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md) format:
-
-- `eip155:84532` — Base Sepolia
-- `eip155:8453` — Base Mainnet
-- `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` — Solana Devnet
-- `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` — Solana Mainnet
+- [`../server/`](../server/) — the resource server that talks to this facilitator
+- [`../client/`](../client/) — the client that signs payments
+- [`/go/examples/facilitator`](../../../go/examples/facilitator/) — the Go facilitator this mirrors
