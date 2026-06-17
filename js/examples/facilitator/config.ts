@@ -33,12 +33,13 @@ export interface Env {
   keys: Record<string, NetworkKey>;
 }
 
-function required(key: string): string {
-  const v = process.env[key];
-  if (!v) {
-    throw new Error(`${key} environment variable is required`);
-  }
-  return v;
+/**
+ * Read a per-network env var without throwing. Used so the loop can collect
+ * every missing network and report them in one fatal error, matching the
+ * behavior of go/examples/facilitator/config.go.
+ */
+function envVar(key: string): string | undefined {
+  return process.env[key];
 }
 
 /**
@@ -87,14 +88,16 @@ export function parseEnv(): Env {
   }
 
   // ---- Per-network resolution -------------------------------------------
+  // Read each network's vars without throwing so we can collect every
+  // misconfiguration and report them in a single fatal error.
   const keys: Record<string, NetworkKey> = {};
   const missing: string[] = [];
 
   for (const net of networks) {
     const suffix = networkEnvSuffix(net);
 
-    const pemRaw = process.env[`SECRET_KEY_PEM_${suffix}`];
-    const rpcUrl = process.env[`RPCURL_${suffix}`];
+    const pemRaw = envVar(`SECRET_KEY_PEM_${suffix}`);
+    const rpcUrl = envVar(`RPCURL_${suffix}`);
 
     if (!pemRaw || !rpcUrl) {
       missing.push(net);
@@ -102,7 +105,7 @@ export function parseEnv(): Env {
     }
 
     const algoRaw = (
-      process.env[`SECRET_KEY_ALGO_${suffix}`] || DefaultAlgorithm
+      envVar(`SECRET_KEY_ALGO_${suffix}`) || DefaultAlgorithm
     ).toLowerCase();
     if (algoRaw !== "ed25519" && algoRaw !== "secp256k1") {
       throw new Error(
@@ -112,7 +115,7 @@ export function parseEnv(): Env {
 
     keys[net] = {
       pem: normalizePEM(pemRaw),
-      algorithm: algoRaw,
+      algorithm: algoRaw as KeyAlgorithm,
       rpcUrl,
     };
   }
