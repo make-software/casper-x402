@@ -6,43 +6,22 @@ import {
   VerifyResponse,
 } from "@x402/core/types";
 import { ExactCasperScheme } from "@make-software/casper-x402/exact/facilitator";
-import { createFacilitatorCasperSigner } from "@make-software/casper-x402";
+import {
+  FacilitatorCasperSigner,
+  toFacilitatorCasperSigner,
+} from "@make-software/casper-x402";
+import casperSdk from "casper-js-sdk";
 import dotenv from "dotenv";
 import express from "express";
-import casperSdk from "casper-js-sdk";
+
+import { NetworkKey, parseEnv } from "./config.js";
 
 dotenv.config();
 
-// Configuration
-const casperPrivateKeyPath = process.env.CASPER_PRIVATE_KEY_PATH as string | undefined;
-const casperKeyAlgorithm = process.env.CASPER_KEY_ALGORITHM as string | undefined;
-const PORT = process.env.PORT || "4022";
+const cfg = parseEnv();
 
-if (!casperPrivateKeyPath) {
-  console.error("❌ CASPER_PRIVATE_KEY_PATH environment variable is required");
-  process.exit(1);
-}
-
-if (!casperKeyAlgorithm) {
-  console.error("❌ CASPER_KEY_ALGORITHM environment variable is required");
-  process.exit(1);
-}
-
-if (casperKeyAlgorithm !== "ed25519" && casperKeyAlgorithm !== "secp256k1") {
-  console.error("❌ CASPER_KEY_ALGORITHM must be either 'ed25519' or 'secp256k1'");
-  process.exit(1);
-}
-
-// Initialize the x402 Facilitator with Casper support
-const algorithm =
-  casperKeyAlgorithm === "secp256k1"
-    ? casperSdk.KeyAlgorithm.SECP256K1
-    : casperSdk.KeyAlgorithm.ED25519;
-const casperSigner = await createFacilitatorCasperSigner(
-  casperPrivateKeyPath,
-  algorithm,
-  process.env.CASPER_RPC_URL as string,
-);
+const app = express();
+app.use(express.json());
 
 const facilitator = new x402Facilitator()
   .onBeforeVerify(async context => {
@@ -64,23 +43,37 @@ const facilitator = new x402Facilitator()
     console.log("Settle failure", context);
   });
 
-// Register Casper scheme
-facilitator.register(
-  "casper:casper-test",
-  new ExactCasperScheme(casperSigner, {
-    limitedPaymentMotes: 6_000_000_000, // 6 CSPR in motes;
-  }),
-);
+// Register a separate signer + scheme per configured network. Each network may
+// have its own key and RPC endpoint, mirroring go/examples/facilitator/main.go.
+async function buildSigner(key: NetworkKey): Promise<FacilitatorCasperSigner> {
+  const algorithm =
+    key.algorithm === "secp256k1"
+      ? casperSdk.KeyAlgorithm.SECP256K1
+      : casperSdk.KeyAlgorithm.ED25519;
+  const privateKey = casperSdk.PrivateKey.fromPem(key.pem, algorithm);
+  return toFacilitatorCasperSigner(privateKey, key.rpcUrl);
+}
 
-// Initialize Express app
-const app = express();
-app.use(express.json());
+for (const network of cfg.networks) {
+  const key = cfg.keys[network];
+  if (!key) {
+    throw new Error(`No signing material resolved for network ${network}`);
+  }
+  const signer = await buildSigner(key);
+  facilitator.register(
+    network,
+    new ExactCasperScheme(signer, {
+      limitedPaymentMotes: cfg.transactionPaymentMotes,
+    }),
+  );
+  console.log(
+    `network ${network} configured (algo=${key.algorithm}, rpc=${key.rpcUrl})`,
+  );
+}
 
 /**
  * POST /verify
- * Verify a payment against requirements
- *
- * Note: Payment tracking and bazaar discovery are handled by lifecycle hooks
+ * Verify a payment against requirements.
  */
 app.post("/verify", async (req, res) => {
   try {
@@ -95,10 +88,10 @@ app.post("/verify", async (req, res) => {
       });
     }
 
-    // Hooks will automatically:
-    // - Track verified payment (onAfterVerify)
-    // - Extract and catalog discovery info (onAfterVerify)
-    const response: VerifyResponse = await facilitator.verify(paymentPayload, paymentRequirements);
+    const response: VerifyResponse = await facilitator.verify(
+      paymentPayload,
+      paymentRequirements,
+    );
 
     res.json(response);
   } catch (error) {
@@ -111,9 +104,7 @@ app.post("/verify", async (req, res) => {
 
 /**
  * POST /settle
- * Settle a payment on-chain
- *
- * Note: Verification validation and cleanup are handled by lifecycle hooks
+ * Settle a payment on-chain.
  */
 app.post("/settle", async (req, res) => {
   try {
@@ -125,10 +116,6 @@ app.post("/settle", async (req, res) => {
       });
     }
 
-    // Hooks will automatically:
-    // - Validate payment was verified (onBeforeSettle - will abort if not)
-    // - Check verification timeout (onBeforeSettle)
-    // - Clean up tracking (onAfterSettle / onSettleFailure)
     const response: SettleResponse = await facilitator.settle(
       paymentPayload as PaymentPayload,
       paymentRequirements as PaymentRequirements,
@@ -138,9 +125,7 @@ app.post("/settle", async (req, res) => {
   } catch (error) {
     console.error("Settle error:", error);
 
-    // Check if this was an abort from hook
     if (error instanceof Error && error.message.includes("Settlement aborted:")) {
-      // Return a proper SettleResponse instead of 500 error
       return res.json({
         success: false,
         errorReason: error.message.replace("Settlement aborted: ", ""),
@@ -156,9 +141,9 @@ app.post("/settle", async (req, res) => {
 
 /**
  * GET /supported
- * Get supported payment kinds and extensions
+ * Get supported payment kinds and extensions.
  */
-app.get("/supported", async (req, res) => {
+app.get("/supported", async (_req, res) => {
   try {
     const response = facilitator.getSupported();
     res.json(response);
@@ -170,8 +155,10 @@ app.get("/supported", async (req, res) => {
   }
 });
 
-// Start the server
-app.listen(parseInt(PORT), () => {
-  console.log(`🚀 Facilitator listening on http://localhost:${PORT}`);
-  console.log();
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok" });
+});
+
+app.listen(cfg.port, () => {
+  console.log(`🚀 Facilitator listening on http://localhost:${cfg.port}`);
 });
