@@ -9,7 +9,7 @@ This repository delivers four components:
 
 | Component | Purpose | Port |
 |-----------|---------|------|
-| **Facilitator** (`apps/facilitator`) | x402 facilitator HTTP server — verifies signatures and settles payments on Casper | `4022` |
+| **Facilitator** (`examples/facilitator`) | x402 facilitator HTTP server — verifies signatures and settles payments on Casper | `4022` |
 | **Resource Server** (`examples/server`) | Demo Gin server that exposes a paid `GET /weather` endpoint protected by x402 | `4021` |
 | **Client** (`examples/client`) | Headless demo client that consumes the paid endpoint and signs a payment authorization | — |
 | **CSPR.click Web App** (`examples/csprclick-x402`) | React application using CSPR.click to manage the signature of EIP-712 typed data for x402 payments | `4020` |
@@ -115,7 +115,7 @@ In three separate terminals:
 
 ```bash
 # Terminal 1 — facilitator
-go run apps/facilitator/main.go
+go run examples/facilitator/main.go
 
 # Terminal 2 — resource server
 go run examples/server/main.go
@@ -131,9 +131,8 @@ On success, the client prints the weather response and the facilitator logs a
 
 ```
 casper-x402-facilitator/
-├── apps/
-│   └── facilitator/       # x402 facilitator HTTP server (:4022)
 ├── examples/
+│   ├── facilitator/       # x402 facilitator HTTP server (:4022)
 │   ├── server/            # demo resource server (:4021)
 │   ├── client/            # demo headless client
 │   └── csprclick-x402/    # React + CSPR.click typed-data signing demo

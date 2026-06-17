@@ -28,13 +28,13 @@ for loading `.env` files in development.
 Each `main` package contains:
 
 ```
-apps/<name>/
+examples/<name>/
 ├── main.go      # wires up the binary, reads cfg.*
 └── config.go    # Env struct + Parse()
 ```
 
 See the existing implementations:
-- [apps/facilitator/config.go](../apps/facilitator/config.go)
+- [examples/facilitator/config.go](../examples/facilitator/config.go)
 - [examples/server/config.go](../examples/server/config.go)
 - [examples/client/config.go](../examples/client/config.go)
 
@@ -219,7 +219,7 @@ func (e *Env) resolveKeys() error {
 }
 ```
 
-See [apps/facilitator/config.go](../apps/facilitator/config.go) for the full
+See [examples/facilitator/config.go](../examples/facilitator/config.go) for the full
 implementation.
 
 ## Conventions and gotchas
@@ -236,5 +236,5 @@ implementation.
 - **Secrets travel through `Env` like anything else** (e.g.
   `SECRET_KEY_PEM_<NET>`). Never log the value; log a derived public
   identifier instead (public key hex, key ID, etc.).
-- **One `Env` per binary.** Do not share a struct across `apps/*` and
-  `examples/*` — divergent needs will make the shared struct awkward quickly.
+- **One `Env` per binary.** Do not share a struct across `examples/*`
+  entries — divergent needs will make the shared struct awkward quickly.

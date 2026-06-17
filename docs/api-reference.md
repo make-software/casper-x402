@@ -2,7 +2,7 @@
 
 This document is a reference for:
 
-1. The **HTTP endpoints** exposed by the facilitator (`apps/facilitator`) and
+1. The **HTTP endpoints** exposed by the facilitator (`examples/facilitator`) and
    the demo resource server (`examples/server`).
 2. The **exported Go types, interfaces and functions** under
    [`x402/mechanisms/casper`](../x402/mechanisms/casper) and

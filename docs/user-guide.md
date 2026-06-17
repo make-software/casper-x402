@@ -5,7 +5,7 @@ applications shipped in this repository: the **x402 facilitator server**, the
 demo **resource server**, the demo **client**, and the **CSPR.click React web
 app**.
 
-The main application is [`apps/facilitator`](../apps/facilitator). The
+The main application is [`examples/facilitator`](../examples/facilitator). The
 [`examples/server`](../examples/server), [`examples/client`](../examples/client)
 and [`examples/csprclick-x402`](../examples/csprclick-x402) apps exist only to
 exercise the facilitator end-to-end.
@@ -101,7 +101,7 @@ go mod download
 The Go apps read environment variables and transparently load a `.env` file
 from the working directory.
 
-### Facilitator (`apps/facilitator`)
+### Facilitator (`examples/facilitator`)
 
 Global variables:
 
@@ -202,7 +202,7 @@ Open three terminals from the project root.
 ### Terminal 1 — facilitator
 
 ```bash
-go run ./apps/facilitator
+go run ./examples/facilitator
 ```
 
 ### Terminal 2 — resource server

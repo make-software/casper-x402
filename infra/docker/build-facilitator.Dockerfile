@@ -12,7 +12,7 @@ RUN go mod download
 
 # Copy source and build
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /facilitator ./apps/facilitator
+RUN CGO_ENABLED=0 GOOS=linux go build -o /facilitator ./examples/facilitator
 
 # Runtime stage
 FROM alpine:3.19
