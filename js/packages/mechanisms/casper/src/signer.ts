@@ -6,7 +6,6 @@ import type {
 } from "casper-js-sdk";
 import { Network } from "@x402/core/types";
 import { NetworkConfig } from "./constants";
-import { readFile } from "fs/promises";
 
 /**
  * Pause execution for the given number of milliseconds.
@@ -76,6 +75,7 @@ export async function createClientCasperSigner(
   pemPath: string,
   algorithm: KeyAlgorithmType = KeyAlgorithm.ED25519,
 ): Promise<ClientCasperSigner> {
+  const { readFile } = await import("fs/promises");
   const pemContent = await readFile(pemPath, "utf-8");
   const privateKey = PrivateKey.fromPem(pemContent, algorithm);
   return toClientCasperSigner(privateKey);
@@ -173,6 +173,7 @@ export async function createFacilitatorCasperSigner(
   algorithm: KeyAlgorithmType = KeyAlgorithm.ED25519,
   rpcUrl: string,
 ): Promise<FacilitatorCasperSigner> {
+  const { readFile } = await import("fs/promises");
   const pemContent = await readFile(pemPath, "utf-8");
   const privateKey = PrivateKey.fromPem(pemContent, algorithm);
   return toFacilitatorCasperSigner(privateKey, rpcUrl);
