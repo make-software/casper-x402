@@ -144,9 +144,7 @@ export async function toFacilitatorCasperSigner(
           execInfo.blockHeight !== 0 &&
           execInfo.executionResult
         ) {
-          // Surface on-chain execution failures so the caller can propagate
-          // them — matches go/x402/signers/casper/facilitator.go's check on
-          // ExecutionResult.ErrorMessage.
+          // Surface on-chain execution failures so the caller can propagate them
           const errorMessage = execInfo.executionResult.errorMessage;
           if (errorMessage) {
             throw new Error(`transaction execution failed: ${errorMessage}`);
