@@ -135,9 +135,25 @@ export async function toFacilitatorCasperSigner(
 
       while (Date.now() - start < timeoutMs) {
         const info = await rpcClient.getTransactionByTransactionHash(transactionHash);
-        if (info.executionInfo?.executionResult) {
+
+        // Wait until the transaction has been included in a finalized block
+        // and an execution result has been attached.
+        const execInfo = info.executionInfo;
+        if (
+          execInfo &&
+          execInfo.blockHeight !== 0 &&
+          execInfo.executionResult
+        ) {
+          // Surface on-chain execution failures so the caller can propagate
+          // them — matches go/x402/signers/casper/facilitator.go's check on
+          // ExecutionResult.ErrorMessage.
+          const errorMessage = execInfo.executionResult.errorMessage;
+          if (errorMessage) {
+            throw new Error(`transaction execution failed: ${errorMessage}`);
+          }
           return;
         }
+
         await sleep(pollIntervalMs);
       }
 
