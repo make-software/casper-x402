@@ -48,9 +48,9 @@ The `ASSET` variable is the CEP-18 token contract package hash that the server w
 ### Client (`examples/client/.env-local`)
 
 ```bash
-CASPER_PRIVATE_KEY_PATH=./payer.pem
-CASPER_KEY_ALGORITHM=ed25519          # or secp256k1
-RESOURCE_SERVER_URL=http://localhost:4021
+CLIENT_PRIVATE_KEY_PATH=./payer.pem
+CLIENT_KEY_ALGO=ed25519              # or secp256k1
+SERVER_URL=http://localhost:4021
 ENDPOINT_PATH=/weather
 ```
 

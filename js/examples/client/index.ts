@@ -8,9 +8,9 @@ const { KeyAlgorithm } = casperSdk;
 
 config();
 
-const casperPrivateKeyPath = process.env.CASPER_PRIVATE_KEY_PATH as string | undefined;
-const casperKeyAlgorithm = process.env.CASPER_KEY_ALGORITHM as string | undefined;
-const baseURL = process.env.RESOURCE_SERVER_URL || "http://localhost:4021";
+const casperPrivateKeyPath = process.env.CLIENT_PRIVATE_KEY_PATH as string | undefined;
+const casperKeyAlgorithm = process.env.CLIENT_KEY_ALGO as string | undefined;
+const baseURL = process.env.SERVER_URL || "http://localhost:4021";
 const endpointPath = process.env.ENDPOINT_PATH || "/weather";
 const url = `${baseURL}${endpointPath}`;
 
@@ -25,8 +25,9 @@ const url = `${baseURL}${endpointPath}`;
  * - preferred-network: Client-side payment network preferences
  *
  * To run this example, you need to set the following environment variables:
- * - CASPER_PRIVATE_KEY_PATH: Path to a PEM-encoded Casper private key (optional)
- * - CASPER_KEY_ALGORITHM: "ed25519" or "secp256k1" (optional, defaults to ed25519)
+ * - CLIENT_PRIVATE_KEY_PATH: Path to a PEM-encoded Casper private key (required)
+ * - CLIENT_KEY_ALGO: "ed25519" or "secp256k1" (optional, defaults to ed25519)
+ * - SERVER_URL: Base URL of the resource server (optional, defaults to http://localhost:4021)
  *
  */
 async function main(): Promise<void> {
@@ -34,7 +35,7 @@ async function main(): Promise<void> {
   console.log(`\n🚀 Running advanced example\n`);
 
   if (!casperPrivateKeyPath) {
-    console.error("❌ CASPER_PRIVATE_KEY_PATH environment variable is required");
+    console.error("❌ CLIENT_PRIVATE_KEY_PATH environment variable is required");
     process.exit(1);
   }
 
