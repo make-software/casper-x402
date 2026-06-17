@@ -75,39 +75,13 @@ Under the hood:
 ### 1. Install dependencies
 
 ```bash
+cd go
 go mod download
 ```
 
 ### 2. Configure environment variables
 
-Copy the provided `.env` template and fill in values (see
-[docs/user-guide.md](docs/user-guide.md#configuration) for the full reference). Or use `.env.testnet` if you're going to test on the Testnet network.
-
-```bash
-# FACILITATOR
-CASPER_NETWORKS=casper:casper-net-1
-# Per-network key + RPC — suffix is the CAIP-2 id uppercased with ':' and '-' replaced by '_'
-SECRET_KEY_PEM_CASPER_CASPER_NET_1="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
-SECRET_KEY_ALGO_CASPER_CASPER_NET_1=ed25519
-RPCURL_CASPER_CASPER_NET_1=http://127.0.0.1:11101/rpc
-
-# RESOURCE SERVER
-PAYEE_ADDRESS=00<32-byte-account-hash-hex>
-FACILITATOR_URL=http://localhost:4022
-CAIP2_CHAIN_ID=casper:casper-net-1
-ASSET_PACKAGE=<32-byte-cep18-package-hash-hex>
-ASSET_NAME=<cep18-token-name>
-
-# CLIENT
-CLIENT_PRIVATE_KEY_PATH=./user2.pem
-CLIENT_KEY_ALGO=ed25519
-SERVER_URL=http://localhost:4021
-```
-
-The facilitator supports multiple Casper networks in a single process: list
-them all in `CASPER_NETWORKS` and provide one `SECRET_KEY_PEM_<NET>` +
-`RPCURL_<NET>` pair per network. See [docs/user-guide.md](docs/user-guide.md#facilitator-examplesfacilitator)
-for the full variable reference.
+Copy the provided `.env` template into the `./go` folder and fill in values. Or use `.env.testnet` if you're going to test on the Testnet network with WCSPR contract.
 
 ### 3. Run the services
 
@@ -115,13 +89,13 @@ In three separate terminals:
 
 ```bash
 # Terminal 1 — facilitator
-go run examples/facilitator/main.go
+go run ./examples/facilitator
 
 # Terminal 2 — resource server
-go run examples/server/main.go
+go run ./examples/server
 
 # Terminal 3 — client (performs a paid request)
-go run examples/client/main.go
+go run ./examples/client
 ```
 
 On success, the client prints the weather response and the facilitator logs a

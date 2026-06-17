@@ -22,37 +22,7 @@ This folder contains runnable demos that show the full x402 payment flow on Casp
 
 ## Configuration
 
-The server and client examples ship with `.env-local` templates. The facilitator example already has a `.env` file. Copy/rename the templates and fill in your own keys before running.
-
-### Facilitator (`examples/facilitator/.env`)
-
-```bash
-CASPER_PRIVATE_KEY_PATH=./myaccount3.pem
-CASPER_KEY_ALGORITHM=secp256k1          # or ed25519
-CASPER_RPC_URL=https://node.testnet.casper.network/rpc
-PORT=4022
-```
-
-> **Security note:** The facilitator key signs on-chain settlement transactions. Keep it separate from seller/buyer wallets and fund it only for facilitator gas/fees.
-
-### Resource server (`examples/server/.env-local`)
-
-```bash
-CASPER_ADDRESS=0065a1bb912303cda45b4c7d10329ea630c50dd742e508539ad4f5c34be2d97291
-FACILITATOR_URL=http://localhost:4022
-ASSET=<64-character-cep18-package-hash>
-```
-
-The `ASSET` variable is the CEP-18 token contract package hash that the server will require payment in. The server example also hard-codes a default `assetAmount` in `index.ts` for price parsing; update it if your token has different decimals or metadata.
-
-### Client (`examples/client/.env-local`)
-
-```bash
-CLIENT_PRIVATE_KEY_PATH=./payer.pem
-CLIENT_KEY_ALGO=ed25519              # or secp256k1
-SERVER_URL=http://localhost:4021
-ENDPOINT_PATH=/weather
-```
+Copy the provided `.env` template and fill in values. Or use `.env.testnet` if you're going to test on the Testnet network with WCSPR contract.
 
 ---
 
@@ -75,7 +45,7 @@ Open three terminals and start the services in this order:
 
 ```bash
 # from the repository root
-pnpm --filter @x402/core-facilitator-typescript dev
+pnpx tsx js/examples/facilitator/index.ts
 ```
 
 You should see:
@@ -88,9 +58,7 @@ You should see:
 
 ```bash
 # from the repository root
-cp examples/server/.env-local examples/server/.env
-# edit examples/server/.env with your payee address, asset hash and facilitator URL
-pnpm --filter @x402/express-server-example dev
+pnpx tsx js/examples/facilitator/index.ts
 ```
 
 You should see:
@@ -103,9 +71,7 @@ Server listening at http://localhost:4021
 
 ```bash
 # from the repository root
-cp examples/client/.env-local examples/client/.env
-# edit examples/client/.env with your payer key
-pnpm --filter casper-client-example start
+pnpx tsx js/examples/facilitator/index.ts
 ```
 
 On success, the client prints the weather response and the facilitator logs the verified/settled payment.
@@ -167,6 +133,7 @@ Casper CAIP-2 identifiers:
 
 - `casper:casper` — Casper Mainnet
 - `casper:casper-test` — Casper Testnet
+- `casper:casper-net-1` - Casper NCTL local test network
 
 ---
 
