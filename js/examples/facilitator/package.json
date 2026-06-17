@@ -1,0 +1,25 @@
+{
+  "name": "@x402/core-facilitator-typescript",
+  "version": "2.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "tsx index.ts",
+    "dev": "tsx watch index.ts",
+    "build": "tsc",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@make-software/casper-x402": "workspace:*",
+    "@scure/base": "^1.2.6",
+    "@x402/core": "2.14.0",
+    "casper-js-sdk": "5.0.12",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21"
+  }
+}

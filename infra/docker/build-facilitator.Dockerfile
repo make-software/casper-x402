@@ -1,7 +1,7 @@
 # Build stage
 FROM golang:1.25-alpine AS builder
 
-WORKDIR /app
+WORKDIR /app/go
 
 # Install build dependencies
 RUN apk add --no-cache git

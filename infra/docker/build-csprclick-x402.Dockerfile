@@ -7,11 +7,11 @@ ARG VITE_WEATHER_URL=""
 ENV VITE_WEATHER_URL=${VITE_WEATHER_URL}
 
 # Install dependencies first for layer caching.
-COPY examples/csprclick-x402/package*.json ./
+COPY go/examples/csprclick-x402/package*.json ./
 RUN npm ci --legacy-peer-deps
 
 # Copy source and build.
-COPY examples/csprclick-x402 ./
+COPY go/examples/csprclick-x402 ./
 RUN npm run build
 
 # Runtime stage
