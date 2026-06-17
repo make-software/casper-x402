@@ -1,4 +1,4 @@
-module casper_x402_facilitator
+module github.com/make-software/casper-x402/go
 
 go 1.25.0
 

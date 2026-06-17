@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"casper_x402_facilitator/x402/mechanisms/casper"
+	"github.com/make-software/casper-x402/go/x402/mechanisms/casper"
 
 	x402 "github.com/x402-foundation/x402/go"
 	"github.com/x402-foundation/x402/go/types"

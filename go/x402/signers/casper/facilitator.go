@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	mechanismcasper "casper_x402_facilitator/x402/mechanisms/casper"
+	mechanismcasper "github.com/make-software/casper-x402/go/x402/mechanisms/casper"
 
 	casperSDK "github.com/make-software/casper-go-sdk/v2/casper"
 	"github.com/make-software/casper-go-sdk/v2/types"

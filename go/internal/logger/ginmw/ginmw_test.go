@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 
-	"casper_x402_facilitator/internal/logger"
+	"github.com/make-software/casper-x402/go/internal/logger"
 )
 
 func init() { gin.SetMode(gin.TestMode) }

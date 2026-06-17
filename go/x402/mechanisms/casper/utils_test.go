@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"testing"
 
-	"casper_x402_facilitator/x402/mechanisms/casper"
+	"github.com/make-software/casper-x402/go/x402/mechanisms/casper"
 )
 
 func TestGetNetworkConfig_Mainnet(t *testing.T) {

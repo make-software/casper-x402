@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"casper_x402_facilitator/internal/logger"
+	"github.com/make-software/casper-x402/go/internal/logger"
 )
 
 // AccessLog emits exactly one log entry per completed HTTP request with

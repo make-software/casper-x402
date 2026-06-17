@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"casper_x402_facilitator/x402/mechanisms/casper"
-	casperServer "casper_x402_facilitator/x402/mechanisms/casper/exact/server"
+	"github.com/make-software/casper-x402/go/x402/mechanisms/casper"
+	casperServer "github.com/make-software/casper-x402/go/x402/mechanisms/casper/exact/server"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

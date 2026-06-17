@@ -19,8 +19,8 @@ import (
 	x402 "github.com/x402-foundation/x402/go"
 	x402http "github.com/x402-foundation/x402/go/http"
 
-	casperClientScheme "casper_x402_facilitator/x402/mechanisms/casper/exact/client"
-	casperSigner "casper_x402_facilitator/x402/signers/casper"
+	casperClientScheme "github.com/make-software/casper-x402/go/x402/mechanisms/casper/exact/client"
+	casperSigner "github.com/make-software/casper-x402/go/x402/signers/casper"
 )
 
 func main() {

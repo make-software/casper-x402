@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"casper_x402_facilitator/x402/mechanisms/casper"
-	casperClient "casper_x402_facilitator/x402/mechanisms/casper/exact/client"
+	"github.com/make-software/casper-x402/go/x402/mechanisms/casper"
+	casperClient "github.com/make-software/casper-x402/go/x402/mechanisms/casper/exact/client"
 
 	eip712 "github.com/casper-ecosystem/casper-eip-712/go"
 	"github.com/stretchr/testify/assert"

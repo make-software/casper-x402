@@ -19,7 +19,7 @@ import (
 	"github.com/make-software/casper-go-sdk/v2/types/key"
 	"github.com/make-software/casper-go-sdk/v2/types/keypair"
 
-	casperMechanism "casper_x402_facilitator/x402/mechanisms/casper"
+	casperMechanism "github.com/make-software/casper-x402/go/x402/mechanisms/casper"
 
 	x402 "github.com/x402-foundation/x402/go"
 	x402types "github.com/x402-foundation/x402/go/types"

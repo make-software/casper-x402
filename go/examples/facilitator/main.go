@@ -13,11 +13,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/make-software/casper-go-sdk/v2/types/keypair"
 
-	casperFacilitator "casper_x402_facilitator/x402/mechanisms/casper/exact/facilitator"
-	casperSigner "casper_x402_facilitator/x402/signers/casper"
+	casperFacilitator "github.com/make-software/casper-x402/go/x402/mechanisms/casper/exact/facilitator"
+	casperSigner "github.com/make-software/casper-x402/go/x402/signers/casper"
 
-	"casper_x402_facilitator/internal/logger"
-	"casper_x402_facilitator/internal/logger/ginmw"
+	"github.com/make-software/casper-x402/go/internal/logger"
+	"github.com/make-software/casper-x402/go/internal/logger/ginmw"
 
 	x402 "github.com/x402-foundation/x402/go"
 )

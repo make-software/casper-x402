@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"casper_x402_facilitator/x402/mechanisms/casper"
+	"github.com/make-software/casper-x402/go/x402/mechanisms/casper"
 
 	caspertypes "github.com/make-software/casper-go-sdk/v2/types"
 )

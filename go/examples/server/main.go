@@ -14,10 +14,10 @@ import (
 	x402http "github.com/x402-foundation/x402/go/http"
 	ginmwx402 "github.com/x402-foundation/x402/go/http/gin"
 
-	casperServer "casper_x402_facilitator/x402/mechanisms/casper/exact/server"
+	casperServer "github.com/make-software/casper-x402/go/x402/mechanisms/casper/exact/server"
 
-	"casper_x402_facilitator/internal/logger"
-	"casper_x402_facilitator/internal/logger/ginmw"
+	"github.com/make-software/casper-x402/go/internal/logger"
+	"github.com/make-software/casper-x402/go/internal/logger/ginmw"
 )
 
 // fatal logs an error at the error level and exits with code 1.

@@ -9,7 +9,7 @@ import (
 	"math/big"
 	"time"
 
-	"casper_x402_facilitator/x402/mechanisms/casper"
+	"github.com/make-software/casper-x402/go/x402/mechanisms/casper"
 
 	eip712 "github.com/casper-ecosystem/casper-eip-712/go"
 	"github.com/x402-foundation/x402/go/types"
