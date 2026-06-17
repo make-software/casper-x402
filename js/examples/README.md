@@ -71,7 +71,7 @@ Server listening at http://localhost:4021
 
 ```bash
 # from the repository root
-pnpx tsx js/examples/facilitator/index.ts
+pnpx tsx js/examples/client/index.ts
 ```
 
 On success, the client prints the weather response and the facilitator logs the verified/settled payment.
