@@ -58,7 +58,7 @@ You should see:
 
 ```bash
 # from the repository root
-pnpx tsx js/examples/facilitator/index.ts
+pnpx tsx js/examples/server/index.ts
 ```
 
 You should see:
