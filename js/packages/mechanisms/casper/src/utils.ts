@@ -1,5 +1,6 @@
 import { NetworkConfig, NetworkConfigs } from "./constants";
 
+// Casper address: 66 hex chars. "00" prefix = account-hash, "01" prefix = hash.
 const addressHashRegex = /^(00|01)[0-9a-fA-F]{64}$/;
 const contractPackageHashRegex = /^[0-9a-fA-F]{64}$/;
 const numericRegex = /^\d+$/;
@@ -23,8 +24,8 @@ function hexToBytes(hex: string): Uint8Array {
 }
 
 /**
- * Check whether a string is a valid Casper account-hash address.
- * Valid addresses are 66 hex characters prefixed with "00" (account hash).
+ * Check whether a string is a valid Casper address.
+ * Valid addresses are 66 hex characters prefixed with "00" (account-hash) or "01" (hash).
  *
  * @param value - The string to validate.
  * @returns True when the value is a valid address.
