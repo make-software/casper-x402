@@ -55,9 +55,9 @@ jobs:
             exit 1
           fi
           BRANCH_VERSION="${REF_NAME#rc-js-}"
-          PACKAGE_VERSION="$(node -p "require('./js/package.json').version")"
+          PACKAGE_VERSION="$(node -p "require('./js/packages/mechanisms/casper/package.json').version")"
           if [ "$BRANCH_VERSION" != "$PACKAGE_VERSION" ]; then
-            echo "Ref version ($BRANCH_VERSION) does not match js/package.json ($PACKAGE_VERSION)." >&2
+            echo "Ref version ($BRANCH_VERSION) does not match js/packages/mechanisms/casper/package.json ($PACKAGE_VERSION)." >&2
             exit 1
           fi
           echo "release_version=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
