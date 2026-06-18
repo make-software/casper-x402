@@ -45,7 +45,7 @@ for (const network of cfg.networks) {
 
 ## Setup
 
-Configuration is read from enviornment variables. See [`/.env.template`](../../../env.template) for the full template.
+Configuration is read from environment variables. See [`/.env.template`](../../../env.template) for the full template.
 
 ### Global
 
