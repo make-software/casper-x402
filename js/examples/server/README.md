@@ -1,8 +1,6 @@
 # @make-software/casper-x402 Resource Server Example
 
-Express.js server demonstrating how to protect API endpoints with an x402
-paywall on the Casper network, using `@x402/express` and
-`@make-software/casper-x402/exact/server`.
+Express.js server demonstrating how to protect API endpoints with an x402 paywall on the Casper network, using `@x402/express` and `@make-software/casper-x402/exact/server`.
 
 ## Code shape
 
@@ -45,7 +43,7 @@ app.use(
   ),
 );
 
-app.get("/weather", /* ... */);
+app.get("/weather" /* ... */);
 app.get("/health", (_, res) => res.json({ status: "ok", version: "2.0.0" }));
 ```
 
@@ -59,9 +57,7 @@ app.get("/health", (_, res) => res.json({ status: "ok", version: "2.0.0" }));
 
 ## Setup
 
-Configuration is read from environment variables. See
-[`/.env.template`](../../../env.template) for the full template. The server
-uses:
+Configuration is read from environment variables. See [`/.env.template`](../../../env.template) for the full template. The server uses:
 
 | Variable | Required | Description |
 | --- | --- | --- |
@@ -92,9 +88,7 @@ The server listens on `http://localhost:4021`.
 
 ### `GET /weather?city=<name>`
 
-Paid weather report. First request returns `402 Payment Required` with a
-`PAYMENT-REQUIRED` header. After paying, the second request returns `200 OK`
-with a `PAYMENT-RESPONSE` header and the weather JSON.
+Paid weather report. First request returns `402 Payment Required` with a `PAYMENT-REQUIRED` header. After paying, the second request returns `200 OK` with a `PAYMENT-RESPONSE` header and the weather JSON.
 
 ### `GET /health`
 
@@ -102,21 +96,18 @@ Free healthcheck returning `{ "status": "ok", "version": "2.0.0" }`.
 
 ## Response format
 
-The 402 response carries a base64-encoded JSON `PAYMENT-REQUIRED` header. The
-Casper-specific fields:
+The 402 response carries a base64-encoded JSON `PAYMENT-REQUIRED` header. The Casper-specific fields:
 
 - `network` — CAIP-2 id, e.g. `casper:casper-test`
 - `asset` — 64-char hex contract-package hash
 - `payTo` — 66-char `00`-prefixed account-hash
 - `extra.name` / `extra.version` — token name + version used in the EIP-712 domain
 
-The 200 response carries a base64-encoded JSON `PAYMENT-RESPONSE` header with
-the settlement details (`transaction`, `network`, `payer`, `requirements`).
+The 200 response carries a base64-encoded JSON `PAYMENT-RESPONSE` header with the settlement details (`transaction`, `network`, `payer`, `requirements`).
 
 ## Extending
 
-To add more paid routes, append entries to the routes config and reuse
-`casperScheme`:
+To add more paid routes, append entries to the routes config and reuse `casperScheme`:
 
 ```typescript
 "GET /your-endpoint": {
@@ -131,10 +122,7 @@ To add more paid routes, append entries to the routes config and reuse
 },
 ```
 
-`network` accepts any
-[CAIP-2](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md)
-Casper identifier — `casper:casper` (mainnet), `casper:casper-test` (testnet),
-`casper:casper-net-1` (NCTL local).
+`network` accepts any [CAIP-2](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md) Casper identifier — `casper:casper` (mainnet), `casper:casper-test` (testnet), `casper:casper-net-1` (NCTL local).
 
 ## See also
 

@@ -1,8 +1,6 @@
 # @make-software/casper-x402 Facilitator Example
 
-Express.js facilitator service that verifies and settles Casper x402
-payments on-chain. Uses `@make-software/casper-x402/exact/facilitator` and
-`@x402/core/facilitator`.
+Express.js facilitator service that verifies and settles Casper x402 payments on-chain. Uses `@make-software/casper-x402/exact/facilitator` and `@x402/core/facilitator`.
 
 ## Code shape
 
@@ -47,8 +45,7 @@ for (const network of cfg.networks) {
 
 ## Setup
 
-Configuration is read from enviornment variables. See
-[`/.env.template`](../../../env.template) for the full template.
+Configuration is read from enviornment variables. See [`/.env.template`](../../../env.template) for the full template.
 
 ### Global
 
@@ -61,14 +58,12 @@ Configuration is read from enviornment variables. See
 
 ### Per-network
 
-Every entry in `CASPER_NETWORKS` must set the corresponding `<NET>`-suffixed
-vars. The suffix is the CAIP-2 id uppercased with `:` and `-` replaced by
-`_`:
+Every entry in `CASPER_NETWORKS` must set the corresponding `<NET>`-suffixed vars. The suffix is the CAIP-2 id uppercased with `:` and `-` replaced by `_`:
 
-| CAIP-2 id | Suffix |
-| --- | --- |
-| `casper:casper` | `CASPER_CASPER` |
-| `casper:casper-test` | `CASPER_CASPER_TEST` |
+| CAIP-2 id             | Suffix                |
+| --------------------- | --------------------- |
+| `casper:casper`       | `CASPER_CASPER`       |
+| `casper:casper-test`  | `CASPER_CASPER_TEST`  |
 | `casper:casper-net-1` | `CASPER_CASPER_NET_1` |
 
 | Variable | Required | Description |
@@ -77,12 +72,9 @@ vars. The suffix is the CAIP-2 id uppercased with `:` and `-` replaced by
 | `SECRET_KEY_ALGO_<NET>` | no | `ed25519` (default) or `secp256k1` |
 | `RPCURL_<NET>` | yes | JSON-RPC endpoint for the network |
 
-Startup fails fast with a single error listing every network missing either
-`SECRET_KEY_PEM_<NET>` or `RPCURL_<NET>`.
+Startup fails fast with a single error listing every network missing either `SECRET_KEY_PEM_<NET>` or `RPCURL_<NET>`.
 
-> **Security note** — the facilitator key signs settlement transactions and
-> pays gas. Keep it separate from your seller `payTo` wallet and buyer test
-> wallets, and fund it only for facilitator fees.
+> **Security note** — the facilitator key signs settlement transactions and pays gas. Keep it separate from your seller `payTo` wallet and buyer test wallets, and fund it only for facilitator fees.
 
 ## Run
 
@@ -121,16 +113,11 @@ Returns the payment kinds and signers this facilitator supports:
 
 ### `POST /verify`
 
-Verifies a `PaymentPayload` against `PaymentRequirements`. Returns 200 with
-`{ isValid, payer }`, or 200 with `{ isValid: false, invalidReason, ... }` on
-validation failure (verification errors are part of the x402 protocol and do
-not produce a 4xx HTTP status).
+Verifies a `PaymentPayload` against `PaymentRequirements`. Returns 200 with `{ isValid, payer }`, or 200 with `{ isValid: false, invalidReason, ... }` on validation failure (verification errors are part of the x402 protocol and do not produce a 4xx HTTP status).
 
 ### `POST /settle`
 
-Settles a verified payment on-chain. Returns 200 with
-`{ success, transaction, network, payer }` on success, or
-`{ success: false, errorReason, ... }` on settlement failure.
+Settles a verified payment on-chain. Returns 200 with `{ success, transaction, network, payer }` on success, or `{ success: false, errorReason, ... }` on settlement failure.
 
 ### `GET /health`
 
@@ -138,9 +125,7 @@ Free healthcheck returning `{ "status": "ok" }`.
 
 ## Lifecycle hooks
 
-Add custom logic before/after each verify and settle operation. Returning
-`{ abort: true, reason }` from a `Before*` hook cancels the operation.
-Returning a result from a `*Failure` hook can recover from the failure.
+Add custom logic before/after each verify and settle operation. Returning `{ abort: true, reason }` from a `Before*` hook cancels the operation. Returning a result from a `*Failure` hook can recover from the failure.
 
 ## See also
 

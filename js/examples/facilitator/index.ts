@@ -6,10 +6,7 @@ import {
   VerifyResponse,
 } from "@x402/core/types";
 import { ExactCasperScheme } from "@make-software/casper-x402/exact/facilitator";
-import {
-  FacilitatorCasperSigner,
-  toFacilitatorCasperSigner,
-} from "@make-software/casper-x402";
+import { FacilitatorCasperSigner, toFacilitatorCasperSigner } from "@make-software/casper-x402";
 import casperSdk from "casper-js-sdk";
 import dotenv from "dotenv";
 import express from "express";
@@ -66,9 +63,7 @@ for (const network of cfg.networks) {
       limitedPaymentMotes: cfg.transactionPaymentMotes,
     }),
   );
-  console.log(
-    `network ${network} configured (algo=${key.algorithm}, rpc=${key.rpcUrl})`,
-  );
+  console.log(`network ${network} configured (algo=${key.algorithm}, rpc=${key.rpcUrl})`);
 }
 
 /**
@@ -88,10 +83,7 @@ app.post("/verify", async (req, res) => {
       });
     }
 
-    const response: VerifyResponse = await facilitator.verify(
-      paymentPayload,
-      paymentRequirements,
-    );
+    const response: VerifyResponse = await facilitator.verify(paymentPayload, paymentRequirements);
 
     res.json(response);
   } catch (error) {

@@ -20,6 +20,9 @@ interface Env {
   assetName: string;
 }
 
+/**
+ *
+ */
 function parseEnv(): Env {
   const required = (key: string): string => {
     const v = process.env[key];
@@ -65,6 +68,9 @@ const facilitatorClient = new HTTPFacilitatorClient(facilitatorConfig);
 const assetAmount: AssetAmount = {
   asset: assetPackage,
   amount: "7500000000",
+  extra: { name: cfg.assetName, symbol: "WCSPR", version: "1", decimals: "9" },
+};
+
 const casperScheme = new ExactCasperScheme()
   .registerAsset(chainID, assetPackage, 9)
   .registerMoneyParser(() => Promise.resolve(assetAmount));
