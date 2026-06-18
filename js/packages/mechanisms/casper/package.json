@@ -1,0 +1,82 @@
+{
+  "name": "@make-software/casper-x402",
+  "version": "1.0.0",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/cjs/index.d.ts",
+  "scripts": {
+    "start": "tsx --env-file=.env index.ts",
+    "build": "tsup",
+    "test": "vitest run",
+    "format": "prettier --write \"**/*.{ts,js,cjs,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,js,cjs,json,md}\"",
+    "lint": "eslint . --ext .ts --fix",
+    "lint:check": "eslint . --ext .ts"
+  },
+  "keywords": [
+    "x402",
+    "payment",
+    "protocol",
+    "casper"
+  ],
+  "license": "Apache-2.0",
+  "author": "MAKE Software <info@makegroup.io>",
+  "repository": "https://github.com/make-software/casper-x402-js",
+  "description": "x402 Payment Protocol Casper Implementation for JavaScript",
+  "devDependencies": {
+    "tsup": "^8.4.0",
+    "vite": "^6.2.6",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.5"
+  },
+  "dependencies": {
+    "@x402/core": "2.15.0",
+    "casper-js-sdk": "5.0.12",
+    "@casper-ecosystem/casper-eip-712": "1.2.1"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.mts",
+        "default": "./dist/esm/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    },
+    "./exact/client": {
+      "import": {
+        "types": "./dist/esm/exact/client/index.d.mts",
+        "default": "./dist/esm/exact/client/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/exact/client/index.d.ts",
+        "default": "./dist/cjs/exact/client/index.js"
+      }
+    },
+    "./exact/server": {
+      "import": {
+        "types": "./dist/esm/exact/server/index.d.mts",
+        "default": "./dist/esm/exact/server/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/exact/server/index.d.ts",
+        "default": "./dist/cjs/exact/server/index.js"
+      }
+    },
+    "./exact/facilitator": {
+      "import": {
+        "types": "./dist/esm/exact/facilitator/index.d.mts",
+        "default": "./dist/esm/exact/facilitator/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/exact/facilitator/index.d.ts",
+        "default": "./dist/cjs/exact/facilitator/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ]
+}

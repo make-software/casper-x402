@@ -1,0 +1,101 @@
+name: publish-npm-package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: publish-npm
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+          cache-dependency-path: js/pnpm-lock.yaml
+
+      - name: Upgrade npm for OIDC publishing
+        run: |
+          npm install -g npm@11.5.1
+          npm --version
+
+      - name: Validate release ref matches package version
+        id: validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          REF_TYPE='${{ github.ref_type }}'
+          REF_NAME='${{ github.ref_name }}'
+          if [[ "$REF_TYPE" != "branch" ]]; then
+            echo "This workflow must be run from a branch. Got ref_type: $REF_TYPE" >&2
+            exit 1
+          fi
+          if [[ ! "$REF_NAME" =~ ^rc-js-[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "This workflow must be run from an rc-js-*.*.* branch. Got: $REF_NAME" >&2
+            exit 1
+          fi
+          BRANCH_VERSION="${REF_NAME#rc-js-}"
+          PACKAGE_VERSION="$(node -p "require('./js/packages/mechanisms/casper/package.json').version")"
+          if [ "$BRANCH_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "Ref version ($BRANCH_VERSION) does not match js/packages/mechanisms/casper/package.json ($PACKAGE_VERSION)." >&2
+            exit 1
+          fi
+          echo "release_version=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Require commit to be on master
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin master
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/master; then
+            echo "Refusing to release: $GITHUB_SHA is not an ancestor of origin/master" >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        working-directory: js
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: js
+        run: pnpm run build
+
+      - name: Run tests
+        working-directory: js
+        run: pnpm run test
+
+      - name: Publish to npm
+        working-directory: js
+        run: pnpm --filter @make-software/casper-x402 publish --access public --tag latest
+
+      - name: Create and push release tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG_NAME="js/v${{ steps.validate.outputs.release_version }}"
+          if git ls-remote --exit-code --tags origin "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Tag already exists: $TAG_NAME" >&2
+            exit 1
+          fi
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
