@@ -21,7 +21,7 @@
   ],
   "license": "Apache-2.0",
   "author": "MAKE Software <info@makegroup.io>",
-  "repository": "https://github.com/make-software/casper-x402-js",
+  "repository": "https://github.com/make-software/casper-x402",
   "description": "x402 Payment Protocol Casper Implementation for JavaScript",
   "devDependencies": {
     "tsup": "^8.4.0",

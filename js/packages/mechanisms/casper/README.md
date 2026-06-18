@@ -56,7 +56,7 @@ These are exported as `NETWORK_CASPER_MAINNET` and `NETWORK_CASPER_TESTNET` from
 
 ## Examples
 
-Runnable examples are available in the [`casper-x402-js`](https://github.com/make-software/casper-x402-js) monorepo under `examples/`.
+Runnable examples are available in the [`casper-x402`](https://github.com/make-software/casper-x402) monorepo under `examples/`.
 
 ---
 
