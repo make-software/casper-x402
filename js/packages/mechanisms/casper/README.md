@@ -35,7 +35,7 @@ Peer / transitive dependencies include `@x402/core`, `casper-js-sdk` and `@caspe
 The package exposes a root entry with signer helpers and utilities, plus three subpaths for the `exact` scheme.
 
 | Entry | Purpose |
-|---|---|
+| --- | --- |
 | `@make-software/casper-x402` | Signers, types, constants and utilities |
 | `@make-software/casper-x402/exact/client` | `ExactCasperScheme` for clients |
 | `@make-software/casper-x402/exact/server` | `ExactCasperScheme` and registration for resource servers |

@@ -139,11 +139,7 @@ export async function toFacilitatorCasperSigner(
         // Wait until the transaction has been included in a finalized block
         // and an execution result has been attached.
         const execInfo = info.executionInfo;
-        if (
-          execInfo &&
-          execInfo.blockHeight !== 0 &&
-          execInfo.executionResult
-        ) {
+        if (execInfo && execInfo.blockHeight !== 0 && execInfo.executionResult) {
           // Surface on-chain execution failures so the caller can propagate them
           const errorMessage = execInfo.executionResult.errorMessage;
           if (errorMessage) {

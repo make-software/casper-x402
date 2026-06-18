@@ -73,13 +73,10 @@ export function parseEnv(): Env {
     .filter(n => n.length > 0) as Network[];
 
   if (networks.length === 0) {
-    throw new Error(
-      "CASPER_NETWORKS must list at least one network (comma-separated CAIP-2 ids)",
-    );
+    throw new Error("CASPER_NETWORKS must list at least one network (comma-separated CAIP-2 ids)");
   }
 
-  const transactionPaymentMotesRaw =
-    process.env.TRANSACTION_PAYMENT_MOTES || "7000000000";
+  const transactionPaymentMotesRaw = process.env.TRANSACTION_PAYMENT_MOTES || "7000000000";
   const transactionPaymentMotes = parseInt(transactionPaymentMotesRaw, 10);
   if (Number.isNaN(transactionPaymentMotes) || transactionPaymentMotes <= 0) {
     throw new Error(
@@ -104,9 +101,7 @@ export function parseEnv(): Env {
       continue;
     }
 
-    const algoRaw = (
-      envVar(`SECRET_KEY_ALGO_${suffix}`) || DefaultAlgorithm
-    ).toLowerCase();
+    const algoRaw = (envVar(`SECRET_KEY_ALGO_${suffix}`) || DefaultAlgorithm).toLowerCase();
     if (algoRaw !== "ed25519" && algoRaw !== "secp256k1") {
       throw new Error(
         `SECRET_KEY_ALGO_${suffix} must be 'ed25519' or 'secp256k1', got '${algoRaw}'`,
