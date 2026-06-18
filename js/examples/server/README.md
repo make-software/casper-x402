@@ -43,7 +43,7 @@ app.use(
   ),
 );
 
-app.get("/weather" /* ... */);
+app.get("/weather", /* ... */);
 app.get("/health", (_, res) => res.json({ status: "ok", version: "2.0.0" }));
 ```
 

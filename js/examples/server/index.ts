@@ -20,9 +20,6 @@ interface Env {
   assetName: string;
 }
 
-/**
- *
- */
 function parseEnv(): Env {
   const required = (key: string): string => {
     const v = process.env[key];
