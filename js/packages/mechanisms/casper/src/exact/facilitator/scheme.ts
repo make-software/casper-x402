@@ -478,7 +478,7 @@ function buildTransferWithAuthorizationArgs(payload: ExactCasperPayload) {
   const args: Record<string, casperSdk.CLValue> = {
     from: casperSdk.CLValue.newCLKey(fromKey),
     to: casperSdk.CLValue.newCLKey(toKey),
-    amount: casperSdk.CLValue.newCLUInt256(payload.authorization.value),
+    value: casperSdk.CLValue.newCLUInt256(payload.authorization.value),
     valid_after: casperSdk.CLValue.newCLUint64(parseInt(payload.authorization.validAfter, 10)),
     valid_before: casperSdk.CLValue.newCLUint64(parseInt(payload.authorization.validBefore, 10)),
     nonce: casperSdk.CLValue.newCLList(

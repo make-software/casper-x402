@@ -280,7 +280,7 @@ func (f *ExactCasperScheme) Settle(
 
 	args.AddArgument("from", clvalue.NewCLKey(fromKey)).
 		AddArgument("to", clvalue.NewCLKey(toKey)).
-		AddArgument("amount", *clvalue.NewCLUInt256(amountInt)).
+		AddArgument("value", *clvalue.NewCLUInt256(amountInt)).
 		AddArgument("valid_after", *clvalue.NewCLUInt64(validAfterInt)).
 		AddArgument("valid_before", *clvalue.NewCLUInt64(validBeforeInt)).
 		AddArgument("nonce", clListU8WithBytes(nonceBytes)).
